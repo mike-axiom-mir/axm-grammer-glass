@@ -1,6 +1,6 @@
 (()=>{'use strict';
 const root=typeof window!=='undefined'?window:globalThis;
-const MODES=Object.freeze(['GRAVITY_WELL','RIFT_SCAN','STAR_HUNT']);
+const MODES=Object.freeze(['GRAVITY_WELL','RIFT_SCAN','DARK_MATTER','STAR_HUNT']);
 function canon(v){if(v===null||typeof v!=='object')return JSON.stringify(v);if(Array.isArray(v))return`[${v.map(canon).join(',')}]`;return`{${Object.keys(v).sort().map(k=>`${JSON.stringify(k)}:${canon(v[k])}`).join(',')}}`}
 function sha256(value){const text=typeof value==='string'?value:canon(value);if(typeof require==='function'){try{return require('crypto').createHash('sha256').update(text).digest('hex')}catch{}}if(root&&root.AXMInterglassExecutor&&typeof root.AXMInterglassExecutor.sha256==='function')return root.AXMInterglassExecutor.sha256(text);throw Error('PLAYGROUND_SHA256_ADAPTER_REQUIRED')}
 function clamp(v,min,max){v=Number(v);return Number.isFinite(v)?Math.max(min,Math.min(max,v)):min}
