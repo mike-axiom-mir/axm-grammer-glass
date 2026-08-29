@@ -78,6 +78,15 @@ jobs:
           grep -q 'GRAMMAR_102_GENERATION_COMPARISON_READY_NO_RANKING' tools/grammar-glass/grammar-102-intake-core.js
           grep -q 'automaticDefaultReplacement:false' tools/grammar-glass/grammar-102-intake-core.js
           grep -q 'darkGrammarResolutionNotInferred:true' tools/grammar-glass/grammar-102-intake-core.js
+          grep -q 'GRAMMAR_102_GHOST_EVOLUTION_VISUAL_READY_NO_RANKING' tools/grammar-glass/grammar-102-visual-core.js
+          grep -q 'itemPositionHasNoSemanticMeaning:true' tools/grammar-glass/grammar-102-visual-core.js
+          grep -q 'bridgeMarksAreNotBridgeTopology:true' tools/grammar-glass/grammar-102-visual-core.js
+          grep -q 'cheatcodeMarksAreNotInfluenceEdges:true' tools/grammar-glass/grammar-102-visual-core.js
+          grep -q '102-GRAMMAR EVOLUTION · GHOST FIELD' tools/grammar-glass/grammar-102-view.js
+          grep -q 'automaticImportActivation:false' tools/grammar-glass/grammar-102-view.js
+          grep -q 'loadGrammar102Evolution' tools/grammar-glass/ghost-glass.js
+          grep -q 'grammar102EvolutionLoadsAsOptionalViewer:true' tools/grammar-glass/ghost-glass.js
           grep -q 'separate 102-Grammar development lane' docs/GRAMMAR_102_INTAKE_BRIDGE.md
+          grep -q 'geometry is intentionally non-semantic' docs/GRAMMAR_102_VISUAL_EVOLUTION.md
           grep -q 'no claim about real dark matter is made' docs/DARK_GRAMMAR_METAPHOR.md
           git diff --check
