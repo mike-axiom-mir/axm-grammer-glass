@@ -4,7 +4,7 @@
   "private": true,
   "description": "Standalone AXM Grammar Glass / Code Twister recovery",
   "scripts": {
-    "test": "node shared/code-capability-fabric/language-organs/selftest-code-grammar-glass.js && node shared/code-capability-fabric/language-organs/selftest-code-grammar-glass-memory.js && node shared/code-capability-fabric/language-organs/selftest-code-grammar-glass-interglass.js && node shared/code-capability-fabric/language-organs/selftest-code-grammar-glass-execution-history.js",
+    "test": "node shared/code-capability-fabric/language-organs/selftest-code-grammar-glass.js && node shared/code-capability-fabric/language-organs/selftest-code-grammar-glass-memory.js && node shared/code-capability-fabric/language-organs/selftest-code-grammar-glass-interglass.js && node shared/code-capability-fabric/language-organs/selftest-code-grammar-glass-execution-history.js && node tools/grammar-glass/selftest-playground.js",
     "snapshot": "node shared/code-capability-fabric/language-organs/generate-code-grammar-glass-snapshot.js --seed 6f2d8b4abef8ebf661925d5ce9d1aeea05b584055e8bdc96b9f857fd66d65e0f --day standalone-grammar-glass --ticks 6 --stars 4"
   },
   "engines": {
