@@ -1,0 +1,23 @@
+'use strict';
+const assert=require('assert/strict');
+const path=require('path');
+const {execFileSync}=require('child_process');
+const Core=require('./playground-core.js');
+const Ghost=require('./ghost-glass-core.js');
+let n=0;const ok=(v,m)=>{assert.ok(v,m);n++},eq=(a,b,m)=>{assert.equal(a,b,m);n++};
+const generator=path.resolve(__dirname,'../../shared/code-capability-fabric/language-organs/generate-code-grammar-glass-snapshot.js');
+function snap(seed,day){return JSON.parse(execFileSync(process.execPath,[generator,'--seed',seed,'--day',day,'--ticks','4','--stars','4'],{encoding:'utf8',maxBuffer:8*1024*1024}))}
+const A=snap('6f2d8b4abef8ebf661925d5ce9d1aeea05b584055e8bdc96b9f857fd66d65e0f','ghost-a');
+const B=snap('8f3f56d7f553184e71489357efba91b480bc04f65ad3e4e3f99e83c8d388be09','ghost-b');
+ok(Core.MODES.includes('DARK_MATTER'),'dark matter viewer mode present');
+const langs=Core.rollLanguages(A,{count:5,roll:2}),probe=Core.createProbe(A,{languageIds:langs,mode:'DARK_MATTER',strength:.7,roll:2});
+eq(probe.mode,'DARK_MATTER','dark grammar probe created');
+eq(probe.truth.semanticEquivalenceInferred,false,'dark grammar no equivalence');
+const X=Ghost.createGhostComparison(A,B),Y=Ghost.createGhostComparison(A,B);
+eq(X.ghostComparisonSha256,Y.ghostComparisonSha256,'ghost deterministic');
+eq(X.truth.comparisonRanksSnapshots,false,'ghost no rank');
+eq(X.truth.winnerSelected,false,'ghost no winner');
+eq(X.truth.cosmologyClaimMade,false,'ghost no cosmology claim');
+ok(X.metrics.sharedGrammarCount>0,'shared grammars visible');
+ok(X.metrics.primaryOnlyRelationCount+X.metrics.ghostOnlyRelationCount+X.metrics.sharedRelationCount>0,'relations compared');
+process.stdout.write(JSON.stringify({result:'GRAMMAR_GLASS_GHOST_AND_DARK_GRAMMAR_SELFTEST_PASS',assertions:n,ghostComparisonSha256:X.ghostComparisonSha256,darkProbeSha256:probe.probeSha256,authority:'NONE'},null,2)+'\n');
