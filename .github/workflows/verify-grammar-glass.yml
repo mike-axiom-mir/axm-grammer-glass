@@ -84,9 +84,16 @@ jobs:
           grep -q 'cheatcodeMarksAreNotInfluenceEdges:true' tools/grammar-glass/grammar-102-visual-core.js
           grep -q '102-GRAMMAR EVOLUTION · GHOST FIELD' tools/grammar-glass/grammar-102-view.js
           grep -q 'automaticImportActivation:false' tools/grammar-glass/grammar-102-view.js
+          grep -q 'GRAMMAR_102_CHANGE_RIPPLE_READY_STRUCTURAL_CONTACT_ONLY' tools/grammar-glass/change-ripple-core.js
+          grep -q 'structuralContactNotCausalProof:true' tools/grammar-glass/change-ripple-core.js
+          grep -q 'darkGrammarContactIsNotResolution:true' tools/grammar-glass/change-ripple-core.js
+          grep -q 'CHANGE RIPPLE · IMPACT LENS' tools/grammar-glass/change-ripple.js
+          grep -q 'TRACE RIPPLE' tools/grammar-glass/change-ripple.js
           grep -q 'loadGrammar102Evolution' tools/grammar-glass/ghost-glass.js
           grep -q 'grammar102EvolutionLoadsAsOptionalViewer:true' tools/grammar-glass/ghost-glass.js
+          grep -q 'changeRippleLoadsAsOptionalViewer:true' tools/grammar-glass/ghost-glass.js
           grep -q 'separate 102-Grammar development lane' docs/GRAMMAR_102_INTAKE_BRIDGE.md
           grep -q 'geometry is intentionally non-semantic' docs/GRAMMAR_102_VISUAL_EVOLUTION.md
+          grep -q 'structural contact is not causal proof' docs/CHANGE_RIPPLE_IMPACT_LENS.md
           grep -q 'no claim about real dark matter is made' docs/DARK_GRAMMAR_METAPHOR.md
           git diff --check
