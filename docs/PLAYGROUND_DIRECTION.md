@@ -6,49 +6,53 @@ This file records the direction for the `sol/grammar-glass-playground-v1` AI-ins
 
 Make Grammar Glass more explorable, playful and creatively useful while preserving the existing source, provenance, replay and authority boundaries.
 
-## Current playground layer
+The playground is a set of **derived viewer instruments** over one or more recorded Grammar Glass snapshots.
 
-The playground is a set of **derived viewer instruments** over a loaded recorded Grammar Glass snapshot.
+Design principle:
 
-A user can select real grammar identities and explore the relationships that are already present in the snapshot. The viewer can bend, sound, and replay those recorded structures without changing the underlying cycle or inventing evidence.
+`recorded snapshot -> explicit viewer instrument -> derived inspectable receipt/plan/comparison -> no mutation`
 
-The design principle is:
-
-`recorded snapshot -> explicit viewer instrument -> derived inspectable receipt/plan -> no mutation`
-
-The playground should feel physical and strange while keeping the truth boundary visible: bending, hearing, or replaying the Glass is not changing the evidence.
+The viewer may bend, sound, replay, compare and highlight recorded structure. None of those actions changes the evidence underneath.
 
 ## Implemented instruments
 
 ### Gravity Probe
 
 - **Gravity Well**: selected grammars become a visual focus.
-- **Rift Scan**: visualizes recorded boundaries, contrasts and relationships in the selected set.
+- **Rift Scan**: traces the actual recorded atom-to-atom relation topology for the selected grammars.
+- **Dark Grammar**: isolates recorded `CONTRAST`, `REPULSION`, `BOUNDARY` and `UNRESOLVED_NEIGHBOURHOOD` relationships plus relevant contact-memory paths.
 - **Star Hunt**: visualizes recorded Draft Star overlap with the selected grammars.
 - **ROLL 5**: chooses a reproducible temporary grammar set from the recorded root seed plus an explicit roll counter.
 - Manual selection supports up to eight real grammar identities.
-- Probe receipts count only recorded atoms, relation edges, direct carries, contact-memory paths and Draft Star overlap.
+
+Dark Grammar is a memorable model term for influence/tension that is visible in recorded structure without an explicit resolved creation path. It is **not a claim that cosmological dark matter is code, grammar, information or unrealized creation**. See `docs/DARK_GRAMMAR_METAPHOR.md`.
 
 ### Direct Manipulation / Touch Lens
 
 The user may arm the touch lens and drag directly on the Glass.
 
-- `PULL` and `PUSH` change the visual focus only.
+- `PULL` and `PUSH` deform the **actual rendered vessel projection**, including visible atom positions and relationship lines.
+- Recorded atom positions remain unchanged.
+- Selected grammars receive the strongest visual displacement; nearby unselected structure receives a smaller field deformation so the Glass visibly bends as a whole.
 - The focus is stored as normalized viewer coordinates plus visual strength.
-- Each state can produce an `axm.code.grammar-glass-touch-lens-receipt.v1` bound to the active playground probe and exact recorded cycle.
-- Pointer motion creates no new atom state, influence carry, Draft Star, candidate or evidence.
+- Each state produces an `axm.code.grammar-glass-touch-lens-receipt.v1` bound to the active playground probe and exact recorded cycle.
+- If the active grammar probe changes, stale touch state is cleared automatically rather than combining an old touch receipt with a new grammar selection.
 
-### Sonification / Hear the Glass
+### Glass Orchestra / Sonification
 
-The browser can turn the selected recorded structures into an interpretive audio instrument using Web Audio after explicit user activation.
+The browser can turn selected recorded structures into an interpretive audio instrument using Web Audio after explicit user activation.
 
 - selected atom classes -> tone events
 - recorded direct carries -> short pulse events
 - recorded contact-memory paths -> echo events
-- safe-volume control is capped in the UI
-- the sonification plan is deterministic for the same snapshot and probe
+- touch position -> stereo pan when supported
+- `PULL` / `PUSH` -> timbre variation
+- playground lens -> pitch/timbre character
+- Star Flight focus -> star chime
+- pausing the vessel -> pauses the active audio context
+- safe-volume control remains capped in the UI
 
-Audio is explicitly **not** a correctness signal, quality score, semantic-equivalence claim or evidence source.
+The deterministic sonification plan remains the evidence-bound base. Orchestra coupling is a viewer interpretation over that plan. Audio is never a correctness, quality or semantic-equivalence signal.
 
 ### Constellation Mixer / Star Flight
 
@@ -58,41 +62,52 @@ The replay layer constructs an ordered plan from recorded Draft Stars and Run St
 - previous / next event
 - timeline scrub
 - replay speed control
-- click a Draft Star card to jump the flight to that recorded event
+- click a Draft Star card to jump to that recorded event
 - lineage focus is handed to the existing vessel view
-- the visual trail shows visited recorded star events
+- Star Flight publishes a viewer event that the Glass Orchestra may sonify
+- replay never creates history or feeds replayed events into the Twister automatically
 
-Replay never creates history and never feeds replayed events into the Twister automatically.
+### Parallel Universe / Ghost Glass
 
-## Shared extension core
+Ghost Glass accepts a second valid recorded Grammar Glass snapshot and compares it with the primary loaded snapshot.
 
-`playground-extensions-core.js` produces deterministic, inspectable structures for the three instruments:
+It produces an `axm.code.grammar-glass-ghost-comparison.v1` containing non-ranking comparison sets for:
+
+- grammar identities
+- relation topology
+- direct influence carries
+- contact-memory paths
+- Draft Star structural signatures
+
+The viewer overlays the second snapshot through a movable visual membrane and shows structural displacement without making either snapshot the winner.
+
+Ghost Glass explicitly does not create a quality score, causal proof, semantic-equivalence claim, new evidence or cosmology claim.
+
+## Shared extension cores
+
+`playground-extensions-core.js` produces deterministic structures for:
 
 - `axm.code.grammar-glass-touch-lens-receipt.v1`
 - `axm.code.grammar-glass-sonification-plan.v1`
 - `axm.code.grammar-glass-constellation-replay-plan.v1`
 
-The extension core refuses stale probe/cycle bindings and is covered by a dedicated selftest in the normal `npm test` chain.
+`ghost-glass-core.js` produces:
 
-## Possible follow-ons for this same PR lane
+- `axm.code.grammar-glass-ghost-comparison.v1`
 
-- richer direct manipulation shapes beyond a single focus point
-- filterable constellation replay by connection class or grammar family
-- optional stereo/spatial audio projection
-- replay capture as an inert visual-session receipt
-- more playful visual instruments that consume the same recorded evidence root
-
-These remain exploration surfaces unless a later explicit core contract is added and verified.
+The test suite covers determinism, stale binding refusal, no-mutation truth fields, Dark Grammar availability and Ghost Glass non-ranking behavior.
 
 ## Non-negotiable truth boundary
 
 - no cycle mutation
-- no atom-state mutation from viewer interaction
+- no recorded atom-state mutation from viewer interaction
 - no automatic re-entry
 - no automatic execution
 - no ranking or winner selection
-- no quality claim from brightness, proximity, animation, audio or user selection
+- no quality claim from brightness, proximity, animation, sound or user selection
 - no new semantic-equivalence claim
-- no claim that a visual probe or sonification is a discovered executable program
+- no claim that a visual probe, Dark Grammar lens or sonification is discovered executable software
 - replay creates no historical events
+- Ghost Glass differences are not causal proof
+- Dark Grammar is not a physics claim about real dark matter
 - no hidden rewrite of existing Grammar Glass behavior
