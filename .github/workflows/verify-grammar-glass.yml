@@ -1,0 +1,55 @@
+name: Verify standalone Grammar Glass
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Syntax and contracts
+        run: |
+          for f in shared/code-capability-fabric/language-organs/code-grammar-glass*.js shared/code-capability-fabric/language-organs/generate-code-grammar-glass-snapshot.js shared/code-capability-fabric/language-organs/selftest-code-grammar-glass*.js tools/grammar-glass/*.js; do node --check "$f"; done
+          for f in shared/code-capability-fabric/language-organs/code-grammar-glass*.contract.json shared/code-capability-fabric/language-organs/code-built-software-experiment-sandbox.contract.json; do python -m json.tool "$f" >/dev/null; done
+          grep -q 'OPEN_DISCOVERY' shared/code-capability-fabric/language-organs/code-grammar-glass.contract.json
+      - name: Run Grammar Glass selftests
+        run: npm test
+      - name: Verify current snapshot contract
+        run: |
+          node shared/code-capability-fabric/language-organs/generate-code-grammar-glass-snapshot.js --seed 6f2d8b4abef8ebf661925d5ce9d1aeea05b584055e8bdc96b9f857fd66d65e0f --day standalone-grammar-glass --ticks 6 --stars 4 > /tmp/grammar-glass-snapshot.json
+          python - /tmp/grammar-glass-snapshot.json <<'PY'
+          import json, sys
+          p=json.load(open(sys.argv[1], encoding='utf-8'))
+          assert p['schema']=='axm.code.grammar-glass-visual-snapshot.v1'
+          assert p['version']=='1.4.0'
+          assert p['profileCount']==102
+          assert p['atomCount']==1122
+          assert len(p['draftSky'])==4
+          assert p['interglass']['state']=='EXECUTION_READY'
+          assert p['interglass']['runRequest']['truth']['automaticReentryAllowed'] is False
+          assert p['executionSky']==[]
+          assert p['truth']['executionStarCountIsNotQuality'] is True
+          assert p['truth']['executionHistoryDoesNotFeedTwisterAutomatically'] is True
+          PY
+      - name: Verify viewer surfaces
+        run: |
+          grep -q 'MOVING TOROIDAL FIELD' tools/grammar-glass/index.html
+          grep -q 'REACTIVE DRAFT MIRROR GLASS' tools/grammar-glass/index.html
+          grep -q 'DOUBLE GLASS' tools/grammar-glass/index.html
+          grep -q 'INTERGLASS SANDBOX EXECUTION LANE' tools/grammar-glass/index.html
+          grep -q 'EXECUTION CONSTELLATION · RETURN HISTORY' tools/grammar-glass/index.html
+          grep -q 'STAR NAVIGATOR' tools/grammar-glass/starzoom-steward.js
+          git diff --check
