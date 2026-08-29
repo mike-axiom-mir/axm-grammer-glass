@@ -52,4 +52,9 @@ jobs:
           grep -q 'INTERGLASS SANDBOX EXECUTION LANE' tools/grammar-glass/index.html
           grep -q 'EXECUTION CONSTELLATION · RETURN HISTORY' tools/grammar-glass/index.html
           grep -q 'STAR NAVIGATOR' tools/grammar-glass/starzoom-steward.js
+          grep -q 'BEND THE GLASS · NOT THE EVIDENCE' tools/grammar-glass/index.html
+          grep -q 'playground-core.js' tools/grammar-glass/index.html
+          grep -q 'playground.js' tools/grammar-glass/index.html
+          grep -q 'visualProbeCreatesEvidence:false' tools/grammar-glass/playground.js
+          grep -q 'VISUAL_GRAMMAR_PROBE_READY_NO_MUTATION' tools/grammar-glass/playground-core.js
           git diff --check
