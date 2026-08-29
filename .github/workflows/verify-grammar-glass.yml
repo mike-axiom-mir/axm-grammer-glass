@@ -54,16 +54,25 @@ jobs:
           grep -q 'STAR NAVIGATOR' tools/grammar-glass/starzoom-steward.js
           grep -q 'BEND THE GLASS · NOT THE EVIDENCE' tools/grammar-glass/index.html
           grep -q 'DIRECT MANIPULATION · TOUCH LENS' tools/grammar-glass/index.html
-          grep -q 'SONIFICATION · HEAR THE GLASS' tools/grammar-glass/index.html
+          grep -q 'SONIFICATION · GLASS ORCHESTRA' tools/grammar-glass/index.html
           grep -q 'CONSTELLATION MIXER · STAR FLIGHT' tools/grammar-glass/index.html
+          grep -q 'PARALLEL UNIVERSE · GHOST GLASS' tools/grammar-glass/index.html
+          grep -q 'DARK GRAMMAR' tools/grammar-glass/index.html
           grep -q 'playground-extensions-core.js' tools/grammar-glass/index.html
           grep -q 'playground-touch.js' tools/grammar-glass/index.html
           grep -q 'playground-audio.js' tools/grammar-glass/index.html
           grep -q 'constellation-replay.js' tools/grammar-glass/index.html
+          grep -q 'ghost-glass-core.js' tools/grammar-glass/index.html
+          grep -q 'ghost-glass.js' tools/grammar-glass/index.html
           grep -q 'VISUAL_TOUCH_LENS_READY_NO_MUTATION' tools/grammar-glass/playground-extensions-core.js
           grep -q 'INTERPRETIVE_SONIFICATION_PLAN_READY' tools/grammar-glass/playground-extensions-core.js
           grep -q 'RECORDED_STAR_FLIGHT_REPLAY_READY' tools/grammar-glass/playground-extensions-core.js
-          grep -q 'pointerMotionCreatesEvidence:false' tools/grammar-glass/playground-touch.js
-          grep -q 'audioCreatesEvidence:false' tools/grammar-glass/playground-audio.js
-          grep -q 'replayFeedsTwisterAutomatically:false' tools/grammar-glass/constellation-replay.js
+          grep -q 'touchLensCreatesEvidence:false' tools/grammar-glass/vessel-view.js
+          grep -q 'staleProbeAutoClears:true' tools/grammar-glass/playground-touch.js
+          grep -q 'darkMatterIsPhysicsClaim:false' tools/grammar-glass/playground.js
+          grep -q 'orchestraIsInterpretive:true' tools/grammar-glass/playground-audio.js
+          grep -q 'orchestraEventDispatch:true' tools/grammar-glass/constellation-replay.js
+          grep -q 'PARALLEL_RECORDED_GLASS_COMPARISON_READY' tools/grammar-glass/ghost-glass-core.js
+          grep -q 'cosmologyClaimMade:false' tools/grammar-glass/ghost-glass-core.js
+          grep -q 'no claim about real dark matter is made' docs/DARK_GRAMMAR_METAPHOR.md
           git diff --check
