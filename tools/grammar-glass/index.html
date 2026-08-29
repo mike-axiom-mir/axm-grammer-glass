@@ -10,6 +10,7 @@
 <link rel="stylesheet" href="constellation-epp.css">
 <link rel="stylesheet" href="starzoom.css">
 <link rel="stylesheet" href="starzoom-steward.css">
+<link rel="stylesheet" href="playground.css">
 </head>
 <body><main>
 <header class="top">
@@ -45,6 +46,7 @@
       <canvas id="field" class="legacy-field" aria-hidden="true"></canvas>
       <canvas id="sky" class="draft-orbit-canvas" aria-label="Draft star orbit"></canvas>
       <canvas id="executionSky" class="execution-orbit-canvas" aria-label="Execution constellation orbit"></canvas>
+      <canvas id="playgroundCanvas" class="playground-canvas" aria-label="Visual-only Grammar Glass playground probe"></canvas>
 
       <div class="glass-vessel" aria-hidden="true">
         <div class="glass-rim glass-rim-top"></div>
@@ -102,6 +104,29 @@
   </section>
 
   <aside class="side vessel-side">
+    <section class="panel playground-panel">
+      <div class="head">
+        <div><div class="playground-kicker">BEND THE GLASS · NOT THE EVIDENCE</div><h2 class="playground-title">PLAYGROUND · GRAVITY PROBE</h2></div>
+        <span class="pill probe-core-badge" id="playgroundStatus">IDLE</span>
+      </div>
+      <div class="body">
+        <div class="playground-modes">
+          <button class="active" data-playground-mode="GRAVITY_WELL">GRAVITY WELL</button>
+          <button data-playground-mode="RIFT_SCAN">RIFT SCAN</button>
+          <button data-playground-mode="STAR_HUNT">STAR HUNT</button>
+        </div>
+        <div class="playground-actions">
+          <button id="playgroundRoll">ROLL 5</button>
+          <button id="playgroundClear">CLEAR</button>
+          <button id="playgroundInspect">INSPECT RECEIPT</button>
+          <button id="playgroundExport">EXPORT RECEIPT</button>
+        </div>
+        <label class="playground-warp"><span>VISUAL WARP</span><input id="playgroundWarp" type="range" min="0" max="100" value="72"><b id="playgroundWarpValue">72%</b></label>
+        <div class="playground-chip-grid" id="playgroundLanguages"></div>
+        <div class="playground-readout" id="playgroundMetrics"><div class="playground-empty">Load a snapshot, then choose grammars or roll a reproducible set.</div></div>
+        <div class="playground-truth">A probe is a derived visual receipt over the loaded snapshot. Selection, warp, proximity and animation create no evidence, no Draft Star, no candidate, no ranking and no execution authority.</div>
+      </div>
+    </section>
     <section class="panel"><div class="head"><h2>Contact memory</h2><span class="pill amber">DECAYS</span></div><div class="body"><div class="memory-meter" id="memoryMetrics"></div><p class="truth">Recorded contact may alter later circulation through bounded paths. This is not training.</p></div></section>
     <section class="panel"><div class="head"><h2>Why did this composite form?</h2><span class="pill">DERIVATION</span></div><div class="body why" id="why"></div></section>
     <section class="panel"><div class="head"><h2>Formation / mirror selector</h2><span class="pill green">NO WINNER</span></div><div class="body cards" id="mirrors"></div></section>
@@ -127,6 +152,8 @@
 <script src="app.js"></script>
 <script src="execution-history-view.js"></script>
 <script src="vessel-view.js"></script>
+<script src="playground-core.js"></script>
+<script src="playground.js"></script>
 <script src="execution-constellation-epp.js"></script>
 <script src="starzoom-data.js"></script>
 <script src="starzoom.js"></script>
