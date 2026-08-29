@@ -46,6 +46,7 @@
       <canvas id="field" class="legacy-field" aria-hidden="true"></canvas>
       <canvas id="sky" class="draft-orbit-canvas" aria-label="Draft star orbit"></canvas>
       <canvas id="executionSky" class="execution-orbit-canvas" aria-label="Execution constellation orbit"></canvas>
+      <canvas id="ghostGlassCanvas" class="ghost-glass-canvas" aria-label="Parallel recorded Grammar Glass comparison membrane"></canvas>
       <canvas id="playgroundCanvas" class="playground-canvas" aria-label="Visual-only Grammar Glass playground probe"></canvas>
       <canvas id="touchCanvas" class="touch-canvas" aria-label="Visual-only direct manipulation lens"></canvas>
       <canvas id="replayCanvas" class="replay-canvas" aria-label="Recorded constellation star-flight replay"></canvas>
@@ -115,6 +116,7 @@
         <div class="playground-modes">
           <button class="active" data-playground-mode="GRAVITY_WELL">GRAVITY WELL</button>
           <button data-playground-mode="RIFT_SCAN">RIFT SCAN</button>
+          <button data-playground-mode="DARK_MATTER">DARK GRAMMAR</button>
           <button data-playground-mode="STAR_HUNT">STAR HUNT</button>
         </div>
         <div class="playground-actions">
@@ -132,14 +134,14 @@
             <div class="instrument-head"><b>DIRECT MANIPULATION · TOUCH LENS</b><span id="touchStatus">OFF</span></div>
             <div class="instrument-controls"><button id="touchToggle">TOUCH LENS</button><button id="touchForce">PULL</button><button id="touchReset">RESET</button></div>
             <label class="instrument-slider"><span>TOUCH FORCE</span><input id="touchStrength" type="range" min="0" max="100" value="70"><b>VISUAL</b></label>
-            <div class="touch-note">Arm it, then drag directly on the Glass. PULL/PUSH bends only the visual lens around the selected real grammars.</div>
+            <div class="touch-note">Arm it, then drag directly on the Glass. PULL/PUSH deforms the rendered atom field and relationship lines while recorded coordinates stay untouched.</div>
           </div>
 
           <div class="instrument-card">
-            <div class="instrument-head"><b>SONIFICATION · HEAR THE GLASS</b><span id="audioStatus">MUTED</span></div>
+            <div class="instrument-head"><b>SONIFICATION · GLASS ORCHESTRA</b><span id="audioStatus">MUTED</span></div>
             <div class="instrument-controls"><button id="audioToggle">HEAR GLASS</button><button id="audioInspect">INSPECT SOUND PLAN</button></div>
             <label class="instrument-slider"><span>SAFE VOLUME</span><input id="audioVolume" type="range" min="0" max="30" value="12"><b id="audioVolumeValue">12%</b></label>
-            <div class="audio-note">Selected atom classes become tones, direct carries become pulses, and contact-memory paths become echoes. Sound is interpretive, never a correctness signal.</div>
+            <div class="audio-note">Atom classes become tones, carries become pulses, memory paths become echoes, touch moves the stereo field, and Star Flight emits chimes. Sound remains interpretive.</div>
           </div>
 
           <div class="instrument-card">
@@ -150,9 +152,16 @@
             <div class="replay-readout" id="replayLabel">No recorded star events.</div>
             <div class="replay-note">Replay follows recorded Draft/Run Star order and lineage. It never invents history or feeds the Twister automatically.</div>
           </div>
+
+          <div class="instrument-card ghost-card">
+            <div class="instrument-head"><b>PARALLEL UNIVERSE · GHOST GLASS</b><span id="ghostStatus">EMPTY</span></div>
+            <div class="instrument-controls"><label class="ghost-load">LOAD GHOST<input id="ghostFile" type="file" accept="application/json,.json"></label><button id="ghostInspect">INSPECT DIFFERENCE</button><button id="ghostClear">CLEAR GHOST</button></div>
+            <label class="instrument-slider"><span>MEMBRANE</span><input id="ghostBlend" type="range" min="0" max="100" value="50"><b id="ghostBlendValue">50%</b></label>
+            <div class="ghost-note">Load a second recorded snapshot and slide the membrane between both structural histories. Shared/different grammars, relations, carries, memory paths and star signatures are compared without ranking either universe.</div>
+          </div>
         </div>
 
-        <div class="playground-truth">Playground probes, touch, audio and star-flight replay are derived viewer layers over the loaded snapshot. They create no new evidence, no Draft Star, no candidate, no ranking, no automatic re-entry and no execution authority.</div>
+        <div class="playground-truth">Playground probes, Dark Grammar, touch, audio, star-flight replay and Ghost Glass are derived viewer layers over recorded snapshots. Dark Grammar is a metaphor for unresolved/tension structure inside this model, not a claim about physical dark matter. These layers create no new evidence, candidate, ranking, automatic re-entry or execution authority.</div>
       </div>
     </section>
     <section class="panel"><div class="head"><h2>Contact memory</h2><span class="pill amber">DECAYS</span></div><div class="body"><div class="memory-meter" id="memoryMetrics"></div><p class="truth">Recorded contact may alter later circulation through bounded paths. This is not training.</p></div></section>
@@ -182,10 +191,12 @@
 <script src="vessel-view.js"></script>
 <script src="playground-core.js"></script>
 <script src="playground-extensions-core.js"></script>
+<script src="ghost-glass-core.js"></script>
 <script src="playground.js"></script>
 <script src="playground-touch.js"></script>
 <script src="playground-audio.js"></script>
 <script src="constellation-replay.js"></script>
+<script src="ghost-glass.js"></script>
 <script src="execution-constellation-epp.js"></script>
 <script src="starzoom-data.js"></script>
 <script src="starzoom.js"></script>
