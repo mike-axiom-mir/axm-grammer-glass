@@ -47,6 +47,8 @@
       <canvas id="sky" class="draft-orbit-canvas" aria-label="Draft star orbit"></canvas>
       <canvas id="executionSky" class="execution-orbit-canvas" aria-label="Execution constellation orbit"></canvas>
       <canvas id="playgroundCanvas" class="playground-canvas" aria-label="Visual-only Grammar Glass playground probe"></canvas>
+      <canvas id="touchCanvas" class="touch-canvas" aria-label="Visual-only direct manipulation lens"></canvas>
+      <canvas id="replayCanvas" class="replay-canvas" aria-label="Recorded constellation star-flight replay"></canvas>
 
       <div class="glass-vessel" aria-hidden="true">
         <div class="glass-rim glass-rim-top"></div>
@@ -124,7 +126,33 @@
         <label class="playground-warp"><span>VISUAL WARP</span><input id="playgroundWarp" type="range" min="0" max="100" value="72"><b id="playgroundWarpValue">72%</b></label>
         <div class="playground-chip-grid" id="playgroundLanguages"></div>
         <div class="playground-readout" id="playgroundMetrics"><div class="playground-empty">Load a snapshot, then choose grammars or roll a reproducible set.</div></div>
-        <div class="playground-truth">A probe is a derived visual receipt over the loaded snapshot. Selection, warp, proximity and animation create no evidence, no Draft Star, no candidate, no ranking and no execution authority.</div>
+
+        <div class="instrument-grid">
+          <div class="instrument-card">
+            <div class="instrument-head"><b>DIRECT MANIPULATION · TOUCH LENS</b><span id="touchStatus">OFF</span></div>
+            <div class="instrument-controls"><button id="touchToggle">TOUCH LENS</button><button id="touchForce">PULL</button><button id="touchReset">RESET</button></div>
+            <label class="instrument-slider"><span>TOUCH FORCE</span><input id="touchStrength" type="range" min="0" max="100" value="70"><b>VISUAL</b></label>
+            <div class="touch-note">Arm it, then drag directly on the Glass. PULL/PUSH bends only the visual lens around the selected real grammars.</div>
+          </div>
+
+          <div class="instrument-card">
+            <div class="instrument-head"><b>SONIFICATION · HEAR THE GLASS</b><span id="audioStatus">MUTED</span></div>
+            <div class="instrument-controls"><button id="audioToggle">HEAR GLASS</button><button id="audioInspect">INSPECT SOUND PLAN</button></div>
+            <label class="instrument-slider"><span>SAFE VOLUME</span><input id="audioVolume" type="range" min="0" max="30" value="12"><b id="audioVolumeValue">12%</b></label>
+            <div class="audio-note">Selected atom classes become tones, direct carries become pulses, and contact-memory paths become echoes. Sound is interpretive, never a correctness signal.</div>
+          </div>
+
+          <div class="instrument-card">
+            <div class="instrument-head"><b>CONSTELLATION MIXER · STAR FLIGHT</b><span id="replayStatus">EMPTY</span></div>
+            <div class="instrument-controls"><button id="replayToggle">STAR FLIGHT</button><button id="replayPrev">PREV</button><button id="replayNext">NEXT</button><button id="replayInspect">INSPECT REPLAY</button></div>
+            <label class="instrument-slider"><span>TIMELINE</span><input id="replayScrub" type="range" min="0" max="0" value="0"><b>RECORDED</b></label>
+            <label class="instrument-slider"><span>FLIGHT SPEED</span><input id="replaySpeed" type="range" min="25" max="300" value="100"><b>0.25–3×</b></label>
+            <div class="replay-readout" id="replayLabel">No recorded star events.</div>
+            <div class="replay-note">Replay follows recorded Draft/Run Star order and lineage. It never invents history or feeds the Twister automatically.</div>
+          </div>
+        </div>
+
+        <div class="playground-truth">Playground probes, touch, audio and star-flight replay are derived viewer layers over the loaded snapshot. They create no new evidence, no Draft Star, no candidate, no ranking, no automatic re-entry and no execution authority.</div>
       </div>
     </section>
     <section class="panel"><div class="head"><h2>Contact memory</h2><span class="pill amber">DECAYS</span></div><div class="body"><div class="memory-meter" id="memoryMetrics"></div><p class="truth">Recorded contact may alter later circulation through bounded paths. This is not training.</p></div></section>
@@ -153,7 +181,11 @@
 <script src="execution-history-view.js"></script>
 <script src="vessel-view.js"></script>
 <script src="playground-core.js"></script>
+<script src="playground-extensions-core.js"></script>
 <script src="playground.js"></script>
+<script src="playground-touch.js"></script>
+<script src="playground-audio.js"></script>
+<script src="constellation-replay.js"></script>
 <script src="execution-constellation-epp.js"></script>
 <script src="starzoom-data.js"></script>
 <script src="starzoom.js"></script>
