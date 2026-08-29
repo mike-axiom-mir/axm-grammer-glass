@@ -44,7 +44,7 @@ jobs:
           assert p['truth']['executionStarCountIsNotQuality'] is True
           assert p['truth']['executionHistoryDoesNotFeedTwisterAutomatically'] is True
           PY
-      - name: Verify viewer surfaces
+      - name: Verify viewer and intake surfaces
         run: |
           grep -q 'MOVING TOROIDAL FIELD' tools/grammar-glass/index.html
           grep -q 'REACTIVE DRAFT MIRROR GLASS' tools/grammar-glass/index.html
@@ -74,5 +74,10 @@ jobs:
           grep -q 'orchestraEventDispatch:true' tools/grammar-glass/constellation-replay.js
           grep -q 'PARALLEL_RECORDED_GLASS_COMPARISON_READY' tools/grammar-glass/ghost-glass-core.js
           grep -q 'cosmologyClaimMade:false' tools/grammar-glass/ghost-glass-core.js
+          grep -q 'GRAMMAR_102_CAPABILITY_SNAPSHOT_IMPORTED_NOT_ACTIVATED' tools/grammar-glass/grammar-102-intake-core.js
+          grep -q 'GRAMMAR_102_GENERATION_COMPARISON_READY_NO_RANKING' tools/grammar-glass/grammar-102-intake-core.js
+          grep -q 'automaticDefaultReplacement:false' tools/grammar-glass/grammar-102-intake-core.js
+          grep -q 'darkGrammarResolutionNotInferred:true' tools/grammar-glass/grammar-102-intake-core.js
+          grep -q 'separate 102-Grammar development lane' docs/GRAMMAR_102_INTAKE_BRIDGE.md
           grep -q 'no claim about real dark matter is made' docs/DARK_GRAMMAR_METAPHOR.md
           git diff --check
