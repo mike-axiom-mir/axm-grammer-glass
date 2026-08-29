@@ -1,42 +1,34 @@
-# AXM Grammar Glass
+# AXM Grammar Glass / Code Twister
 
-Standalone recovery of the current merged Grammar Glass / Code Twister implementation.
+This is the standalone recovery of the current Grammar Glass body from the AXM collaboration-platform lineage.
 
-This repository contains the actual source code, browser viewer, contracts, tests, live 102-profile grammar snapshot, organ registry data, and the bounded sandbox dependency needed by the current Interglass lane. It does not depend on a clone script or a source-code redirect to operate.
+The repository preserves the actual source bytes, tests, viewer, 102-profile registry snapshot, direct Interglass sandbox dependency, and provenance needed to continue Grammar Glass development without depending on the original repository at runtime.
 
-## Current recovered source
+See `SOURCE_PROVENANCE.md` and `RECOVERY_RECEIPT.md` for the exact recovery boundary.
 
-- Source repository: `mike-axiom-mir/axm-collaboration-platform`
-- Grammar Glass package lineage: PR #61 merged at `2961d42f96ddc6bdb082415e0714a44bcbd61535`
-- Latest overlay: PR #74 open-discovery invariant
-- Exact recovered head: `d14ee2e89e994d16ffcdcd5cfcd7fc85f73b69c3`
-- Base exploration mode: `OPEN_DISCOVERY`
-- Snapshot contract: `1.4.0`
-- Live grammar profiles: `102`
-- Typed structural atoms in the verified fixture: `1122`
+## Current direction
 
-## Layout
+- seeded, replayable cross-grammar structural field
+- Reactive Draft Mirror beside the cycle
+- immutable Draft Stars and append-only constellation history
+- explicit Interglass execution lane with authority `NONE` until separately authorized
+- `OPEN_DISCOVERY` as a first-class base invariant: no desired outcome, fitness function, benchmark, ranking, or winner is required to run the base cycle
+- playground/viewer evolution remains observation-only and does not silently mutate recorded evidence
 
-- `shared/code-capability-fabric/language-organs/` - Grammar Glass core, contracts, tests and bound 102-profile registry snapshot.
-- `tools/grammar-glass/` - DRAFTSKY viewer, StarZoom, vessel view, Interglass browser executor and execution-history views.
-- `SOURCE_PROVENANCE.md` - exact recovery boundary and truth notes.
+## Standalone verification
 
-## Verify locally
-
-Requires Node.js 20+ and Python 3.12+.
-
-```bash
+```sh
 npm test
 ```
 
-Generate a replayable viewer snapshot:
+Generate a deterministic recorded snapshot:
 
-```bash
-npm run snapshot > grammar-glass-snapshot.json
+```sh
+npm run snapshot > /tmp/grammar-glass-snapshot.json
 ```
 
-Then open `tools/grammar-glass/index.html` and load the generated snapshot.
+Open `tools/grammar-glass/index.html` locally and load the generated JSON.
 
 ## Authority boundary
 
-Grammar Glass remains an observation, exploration and bounded candidate-forming system. Open discovery does not require a target, benchmark, fitness function or winner. The Draft Mirror does not control the cycle. Draft Stars are receipts rather than quality votes. Automatic re-entry, selection, promotion, merge and CANON authority remain absent.
+This repository does not claim software/quantum entanglement, consciousness, autonomous life, executable correctness from visual formations, physical dark-matter equivalence, or authority from a visualization. Capability remains separate from authority.
