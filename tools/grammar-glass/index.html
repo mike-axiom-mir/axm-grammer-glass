@@ -13,6 +13,7 @@
 <link rel="stylesheet" href="playground.css">
 <link rel="stylesheet" href="snapshot-load.css">
 <link rel="stylesheet" href="pulse-check.css">
+<link rel="stylesheet" href="discovery-kiln.css">
 </head>
 <body><main>
 <header class="top">
@@ -136,6 +137,26 @@
         <div class="playground-chip-grid" id="playgroundLanguages"></div>
         <div class="playground-readout" id="playgroundMetrics"><div class="playground-empty">Load a snapshot, then choose grammars or roll a reproducible set.</div></div>
 
+        <div class="discovery-kiln" id="discoveryKiln">
+          <div class="kiln-head">
+            <div><div class="kiln-kicker">RNG DISCOVERY → BOUNDED CANDIDATE</div><h3 class="kiln-title">DISCOVERY KILN</h3><small class="kiln-identity" id="kilnIdentity">no active combination</small></div>
+            <span class="pill amber" id="kilnStatus" aria-live="polite">WAITING FOR ROLL</span>
+          </div>
+          <div class="kiln-readouts">
+            <div class="kiln-readout" id="kilnHistory"><span>LOCAL HISTORY</span><b>EMPTY</b><small>Choose or roll real grammars first.</small></div>
+            <div class="kiln-readout" id="kilnGrounding"><span>GROUNDING</span><b>WAITING</b><small>No candidate has been constructed.</small></div>
+          </div>
+          <div class="kiln-rail" id="kilnRail" aria-label="Discovery candidate state rail"></div>
+          <div class="kiln-actions">
+            <button id="kilnPrepare" disabled>PREPARE CANDIDATE</button>
+            <button id="kilnInspect">INSPECT</button>
+            <button id="kilnExport" disabled>EXPORT LEDGER</button>
+            <button id="kilnArm" disabled>ARM BOUND CANDIDATE</button>
+            <button id="kilnRun" disabled>RUN ONCE</button>
+          </div>
+          <div class="kiln-truth">Preparation records the exact combination, atoms, relations, carries, memory paths and source digests. A static page stops at <b>HELD · ADAPTER</b> unless that exact candidate lineage already exists in the snapshot. “New here” means only new to this local ledger—not globally novel.</div>
+        </div>
+
         <div class="instrument-grid">
           <div class="instrument-card">
             <div class="instrument-head"><b>DIRECT MANIPULATION · TOUCH LENS</b><span id="touchStatus">OFF</span></div>
@@ -203,6 +224,7 @@
 <script src="snapshot-load-core.js"></script>
 <script src="snapshot-load.js"></script>
 <script src="playground-core.js"></script>
+<script src="discovery-kiln-core.js"></script>
 <script src="motion-coordinator.js"></script>
 <script src="frame-steward-core.js"></script>
 <script src="frame-steward.js"></script>
@@ -215,6 +237,7 @@
 <script src="playground-extensions-core.js"></script>
 <script src="ghost-glass-core.js"></script>
 <script src="playground.js"></script>
+<script src="discovery-kiln.js"></script>
 <script src="playground-touch.js"></script>
 <script src="playground-audio.js"></script>
 <script src="constellation-replay.js"></script>

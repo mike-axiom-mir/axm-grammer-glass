@@ -102,3 +102,33 @@ Live post-repair verification remains **UNKNOWN**. The cloud browser control
 backend remained unresponsive after the original full-load failure, and the
 isolated local Playwright package exposed an API but no installed browser
 executable. No screenshot or interaction PASS is claimed from those conditions.
+
+## Improvement 3 — seeded discovery to candidate bridge
+
+The playground already produced reproducible combination identities but stopped
+at a visual probe. The Discovery Kiln adds the missing explicit bridge without
+turning the static viewer into a fake construction engine.
+
+The shared organ accepts the complete recorded cycle, catalog, condition, day and
+probe receipts. It deterministically selects a maximum of twelve real atoms while
+representing every selected grammar, builds a lineage-preserving formation, and
+reuses the existing Mirror, Draft Star, inert production-candidate and Interglass
+functions. With no executor it returns `HELD_ADAPTER_REQUIRED`. With the existing
+browser executor it returns a request ready for explicit arm; it does not run it.
+
+The viewer adds a device-local append-only combination ledger and visible state
+rail. It can bind an exact candidate already present in a loaded snapshot. If the
+full construction lineage is absent, it records the grounded preparation and
+names the required adapter rather than reconstructing missing source state.
+
+Focused verification:
+
+- shared Kiln organ: 25 assertions
+- local viewer ledger and preparation core: 27 assertions
+- exact replay, source-binding mismatch, duplicate history and terminal sandbox
+  receipt lineage covered
+- full inherited `npm test`: PASS
+
+Live visual verification remains **UNKNOWN** by agreement for this pass; it can be
+performed later from a local browser or a temporarily hosted copy. No visual PASS
+is claimed.

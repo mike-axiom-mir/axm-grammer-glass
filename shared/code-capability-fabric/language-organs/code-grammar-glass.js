@@ -6,6 +6,7 @@ const observation = require('./code-grammar-glass-observation.js');
 const memory = require('./code-grammar-glass-memory.js');
 const interglass = require('./code-grammar-glass-interglass.js');
 const executionHistory = require('./code-grammar-glass-execution-history.js');
+const discoveryKiln = require('./code-grammar-glass-discovery-kiln.js');
 
 module.exports = Object.freeze({
   GRAMMAR_FAMILY: base.GRAMMAR_FAMILY,
@@ -79,5 +80,8 @@ module.exports = Object.freeze({
   createExecutionReplayRequest: executionHistory.createExecutionReplayRequest,
   augmentVisualSnapshotWithExecutionHistory: executionHistory.augmentVisualSnapshotWithExecutionHistory,
   executionHistorySnapshot: executionHistory.snapshot,
+  DISCOVERY_KILN_STATES: discoveryKiln.DISCOVERY_KILN_STATES,
+  createDiscoveryKilnCandidate: discoveryKiln.createDiscoveryKilnCandidate,
+  discoveryKilnSnapshot: discoveryKiln.snapshot,
   snapshot: observation.snapshot
 });

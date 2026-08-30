@@ -45,6 +45,16 @@ Every active playground state creates an inspectable `axm.code.grammar-glass-pla
 
 The playground does **not** create a Draft Star, candidate, execution request, ranking, winner, semantic-equivalence claim, novelty proof or automatic re-entry. The recorded snapshot remains the evidence source beneath the lens.
 
+## Discovery Kiln — explicit combination preparation
+
+The Discovery Kiln is the opt-in bridge after a playground probe. **PREPARE CANDIDATE** records a device-local append-only receipt bound to the exact combination identity, root seed, cycle digest, roll, grammar identities and a digest over its grounded atoms, relations, direct carries and memory paths. Repeating a combination is counted as another preparation event rather than silently replacing its earlier history.
+
+The state rail is `ROLLED → GROUNDED → HELD / DRAFT STAR → CANDIDATE → SANDBOX → RECEIPT`. A static snapshot can bind only lineage already recorded inside that snapshot. When a new formation requires the full catalog and cycle state, the browser reports `HELD · ADAPTER`; it does not reconstruct missing private state or manufacture a substitute Draft Star.
+
+The shared Discovery Kiln organ provides the full source-side route for an authorized caller that possesses the recorded cycle, catalog, condition and day receipts. It selects a bounded real atom set deterministically, represents every selected grammar, and reuses the existing formation, Mirror, Draft Star, production-packet and Interglass functions. The default route omits an executor and therefore ends at `HELD_ADAPTER_REQUIRED`. A separately supplied browser executor creates an armable request, but preparation still performs no execution.
+
+The local ledger uses browser storage when available and degrades to session-only memory if device storage is unavailable. It performs no cloud sync. Its labels are deliberately limited to `NEW TO THIS LEDGER`, `SEEN IN THIS LEDGER`, and `TESTED IN THIS LEDGER`; none is a novelty or quality judgment.
+
 ## Phase 2 — Double Glass / Interglass Sandbox
 
 Phase 2 adds a visible execution lane without turning the Grammar Glass metadata modules into a fake OS sandbox.
