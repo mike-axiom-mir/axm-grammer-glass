@@ -13,6 +13,8 @@ For exact replay, pass the recorded 64-character root seed with `--seed <seed>`.
 
 Open `tools/grammar-glass/index.html` and choose **Load snapshot JSON**. No canned language activity is shown before a snapshot is supplied.
 
+Full snapshots are read and parsed once even though several viewer instruments bind to the same selected file. For snapshots above 800 atoms, the moving canvases start in **SAFE** visual detail: a deterministic, language-covering 384-atom projection over the complete recorded snapshot. The vessel header always shows `VISUAL rendered/evidence · EVIDENCE FULL`. **DETAIL +** advances to BALANCED (up to 768 atoms), then FULL. This changes drawing work only; metrics, inspectors, receipts, lineage, export data, and the loaded snapshot retain all recorded atoms. Held from the current projection does not mean absent, lower-quality, or unimportant.
+
 The moving viewer now uses `requestAnimationFrame` to interpolate the snapshot's recorded atom phase and angular velocity. Direct carry pulses come from recorded direct influence receipts. Purple multi-hop pulses come from recorded contact-memory paths. The glass shell and motion are visualization only: interpolation does not create evidence and does not mutate the Code Twister cycle.
 
 The **Reactive Draft Mirror Glass** shows a structural response generated from the selected recorded formation, grammar components, typed relationships, contact-memory application state, mirror lens and inert draft-recipe digest. It is readable output derived from the code/grammar data, but it is **not source code, not executable, not a winner, and not runtime evidence**.

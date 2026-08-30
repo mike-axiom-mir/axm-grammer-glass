@@ -35,6 +35,8 @@
       <div><h2>GRAMMAR GLASS VESSEL · SOFTWARE TWISTER</h2><small>seeded code matter inside the observation glass</small></div>
       <div class="motion">
         <span class="pill green" id="coverage"></span>
+        <span class="pill amber" id="renderBudgetStatus" aria-live="polite">VISUAL EMPTY</span>
+        <button class="control" id="renderBudgetToggle" type="button" disabled>DETAIL +</button>
         <button class="control" id="motionToggle" aria-pressed="true">PAUSE</button>
         <label class="pill">speed <input id="speed" type="range" min="20" max="220" value="100"></label>
       </div>
@@ -185,6 +187,9 @@
   <section class="panel languages"><div class="head"><h2>Actual grammar identities</h2><span class="pill" id="profileCount"></span></div><div class="langlist" id="languages"></div></section>
 </div>
 </main>
+<script src="snapshot-loader-core.js"></script>
+<script src="render-budget-core.js"></script>
+<script src="render-budget.js"></script>
 <script src="interglass-executor.js"></script>
 <script src="app.js"></script>
 <script src="execution-history-view.js"></script>

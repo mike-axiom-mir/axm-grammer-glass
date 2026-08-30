@@ -33,5 +33,34 @@ lane until Mike intentionally finishes or merges it.
 
 `grounded snapshot -> stable visual baseline -> one bounded interaction -> named seam -> smallest coherent change -> source tests -> repeated visual verification`
 
-The first live observation and selected improvement will be appended here only
-after they have actually been witnessed.
+## Live observation 1 — full snapshot load seam
+
+- target: PR #3 viewer at exact head `4a837c600eaf066786276012b0766ba202dc55cc`
+- grounded input: 1,994,376-byte recorded snapshot; 102 profiles; 1,122 atoms
+- baseline: unloaded viewer rendered and responded to screenshot capture
+- bounded action: select the grounded snapshot through the visible load control
+- observed sequence: the file chooser accepted the shared snapshot, then browser
+  control and screenshot capture failed to settle within repeated 20–30 second
+  windows
+- verdict: **FAIL** for a responsive settled full-snapshot play surface in that
+  browser; no claim that every browser or device fails
+- named seam: `FULL_SNAPSHOT_LOAD_AND_PROJECTION_BUDGET`
+
+Source tracing found two compounding costs: the same selected file was read and
+JSON-parsed independently by roughly ten viewer modules, and both primary moving
+canvases projected all 1,122 atoms at once.
+
+## Selected repair
+
+1. A shared file-object cache performs one physical read and parse while all
+   existing viewer modules still receive the same parsed snapshot object.
+2. Large snapshots begin in a deterministic SAFE projection of 384 atoms with
+   all 102 grammar identities represented. BALANCED projects up to 768 and FULL
+   projects every atom.
+3. The header reports `VISUAL rendered/evidence · EVIDENCE FULL` and the user can
+   cycle detail explicitly.
+4. Projection budgeting changes no recorded atom, receipt, metric, lineage,
+   snapshot content, execution state, promotion state, or authority.
+
+Focused deterministic tests pass. Live post-repair verification remains required
+before this seam can be closed.

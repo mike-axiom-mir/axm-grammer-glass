@@ -89,6 +89,11 @@ jobs:
           grep -q 'readinessIsNotCorrectness:true' tools/grammar-glass/workbench-polish-core.js
           grep -q 'motionControlCreatesEvidence:false' tools/grammar-glass/motion-coordinator.js
           grep -q 'recordedStateMutation:false' tools/grammar-glass/motion-coordinator.js
+          grep -q 'VISUAL EMPTY' tools/grammar-glass/index.html
+          grep -q 'EVIDENCE FULL' tools/grammar-glass/render-budget.js
+          grep -q 'onePhysicalReadPerFileObject:true' tools/grammar-glass/snapshot-loader-core.js
+          grep -q 'omittedFromProjectionMeansAbsent:false' tools/grammar-glass/render-budget-core.js
+          grep -q 'FULL_SNAPSHOT_LOAD_AND_PROJECTION_BUDGET' docs/LIVE_DISCOVERY_LANE.md
           grep -q 'viewer-state receipt only' docs/WORKBENCH_POLISH_HANDOFF.md
           grep -q 'separate 102-Grammar development lane' docs/GRAMMAR_102_INTAKE_BRIDGE.md
           grep -q 'geometry is intentionally non-semantic' docs/GRAMMAR_102_VISUAL_EVOLUTION.md
