@@ -92,6 +92,10 @@ jobs:
           grep -q 'VISUAL EMPTY' tools/grammar-glass/index.html
           grep -q 'EVIDENCE FULL' tools/grammar-glass/render-budget.js
           grep -q 'onePhysicalReadPerFileObject:true' tools/grammar-glass/snapshot-loader-core.js
+          grep -q 'oneValidatedPublisher:true' tools/grammar-glass/snapshot-load-core.js
+          grep -q 'staleSelectionCannotReplaceCurrent:true' tools/grammar-glass/snapshot-load-core.js
+          grep -q 'SNAPSHOT READY' tools/grammar-glass/snapshot-load.js
+          grep -q 'primaryFileListenerCount:1' tools/grammar-glass/selftest-snapshot-load-routing.js
           grep -q 'omittedFromProjectionMeansAbsent:false' tools/grammar-glass/render-budget-core.js
           grep -q 'FULL_SNAPSHOT_LOAD_AND_PROJECTION_BUDGET' docs/LIVE_DISCOVERY_LANE.md
           grep -q 'viewer-state receipt only' docs/WORKBENCH_POLISH_HANDOFF.md

@@ -64,3 +64,41 @@ canvases projected all 1,122 atoms at once.
 
 Focused deterministic tests pass. Live post-repair verification remains required
 before this seam can be closed.
+
+## Source observation 2 — primary load fan-out seam
+
+After the shared parse repair, source tracing still found twelve primary-snapshot
+consumers starting from independent file-input listeners. The physical bytes were
+read once, but each module still owned an asynchronous bind path. Rapid selection
+could therefore let an older parse finish after a newer selection, and invalid
+input could be swallowed by some modules while another module displayed a modal
+alert.
+
+Named seam: `PRIMARY_SNAPSHOT_ASYNC_FANOUT_AND_STALE_BINDING`.
+
+## Selected repair 2
+
+1. One load transaction owns the primary file input, validates the complete
+   visual-snapshot envelope, and publishes one snapshot event to all consumers.
+2. A monotonically increasing selection ID holds superseded results so an older
+   selection cannot replace the current snapshot.
+3. The header exposes `READING`, `BINDING`, `READY`, or `HELD` state without a
+   blocking modal alert.
+4. The load receipt is viewer state only. It creates no evidence, mutates no
+   recorded snapshot, and has no authority.
+
+## Verification 2
+
+- stale-selection selftest: 3 selections, 1 commit, 1 superseded result held,
+  1 invalid result held, previous valid commit retained
+- routing selftest: 1 primary file-input listener, 12 snapshot-event consumers,
+  non-modal error path
+- complete `npm test`: PASS, including all inherited core, contact-memory,
+  Interglass, execution-history, playground, Ghost, 102, ripple, workbench, and
+  motion suites
+- syntax, current snapshot contract, and diff checks: PASS
+
+Live post-repair verification remains **UNKNOWN**. The cloud browser control
+backend remained unresponsive after the original full-load failure, and the
+isolated local Playwright package exposed an API but no installed browser
+executable. No screenshot or interaction PASS is claimed from those conditions.

@@ -11,6 +11,7 @@
 <link rel="stylesheet" href="starzoom.css">
 <link rel="stylesheet" href="starzoom-steward.css">
 <link rel="stylesheet" href="playground.css">
+<link rel="stylesheet" href="snapshot-load.css">
 </head>
 <body><main>
 <header class="top">
@@ -19,7 +20,10 @@
     <h1>GRAMMAR GLASS <span>/ CODE TWISTER</span></h1>
     <div class="muted">Seeded · replayable · provenance-bound · visual motion creates no evidence</div>
   </div>
-  <div class="facts" id="facts"></div>
+  <div class="snapshot-state">
+    <span class="pill" id="snapshotLoadStatus" data-phase="EMPTY" aria-live="polite">SNAPSHOT EMPTY</span>
+    <div class="facts" id="facts"></div>
+  </div>
 </header>
 
 <section class="load" id="load"><div>
@@ -188,6 +192,8 @@
 </div>
 </main>
 <script src="snapshot-loader-core.js"></script>
+<script src="snapshot-load-core.js"></script>
+<script src="snapshot-load.js"></script>
 <script src="render-budget-core.js"></script>
 <script src="render-budget.js"></script>
 <script src="interglass-executor.js"></script>

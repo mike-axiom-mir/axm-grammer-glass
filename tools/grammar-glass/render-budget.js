@@ -8,6 +8,6 @@ function rebuild(){if(!snapshot)return;plan=Core.createPlan(snapshot.cycle.atoms
 function bind(s){if(!s||s.schema!=='axm.code.grammar-glass-visual-snapshot.v1'||!Array.isArray(s.cycle?.atoms))return;const previousEvidence=plan?.evidenceAtomCount||0;snapshot=s;if(mode==='AUTO'||previousEvidence!==s.cycle.atoms.length)mode=Core.normalizeMode('AUTO',s.cycle.atoms.length);rebuild()}
 function cycle(){if(!plan)return;mode=Core.nextMode(plan.mode);rebuild()}
 function getAtomEntries(){return plan?plan.entries:(snapshot?.cycle?.atoms||[]).map((atom,index)=>({atom,index}))}
-function setup(){const button=$('renderBudgetToggle');if(button)button.addEventListener('click',cycle);const file=$('file');if(file)file.addEventListener('change',async event=>{try{const selected=event.target.files&&event.target.files[0];if(selected)bind(Loader?await Loader.parse(selected):JSON.parse(await selected.text()))}catch{}});if(window.GRAMMAR_GLASS_SNAPSHOT)bind(window.GRAMMAR_GLASS_SNAPSHOT);updateUI()}
+function setup(){const button=$('renderBudgetToggle');if(button)button.addEventListener('click',cycle);addEventListener('axm:grammar-glass-snapshot-loaded',event=>bind(event.detail?.snapshot));if(window.GRAMMAR_GLASS_SNAPSHOT)bind(window.GRAMMAR_GLASS_SNAPSHOT);updateUI()}
 window.AXMGrammarGlassRenderBudget=Object.freeze({bind,cycle,getAtomEntries,getPlan:()=>plan,getState:()=>({...debug}),contract:Object.freeze({fullEvidenceRetained:true,projectionBudgetCreatesEvidence:false,projectionBudgetRanksAtoms:false,recordedStateMutation:false,authority:'NONE'})});setup();
 })();
