@@ -12,6 +12,7 @@
 <link rel="stylesheet" href="starzoom-steward.css">
 <link rel="stylesheet" href="playground.css">
 <link rel="stylesheet" href="snapshot-load.css">
+<link rel="stylesheet" href="pulse-check.css">
 </head>
 <body><main>
 <header class="top">
@@ -159,6 +160,13 @@
             <div class="replay-note">Replay follows recorded Draft/Run Star order and lineage. It never invents history or feeds the Twister automatically.</div>
           </div>
 
+          <div class="instrument-card pulse-card">
+            <div class="instrument-head"><b>FRAME STEWARD · LOCAL PULSE</b><span id="pulseStatus" aria-live="polite">WAIT SNAPSHOT</span></div>
+            <div class="instrument-controls"><button id="pulseRun" disabled>MEASURE 5S</button><button id="pulseInspect">INSPECT PULSE</button><button id="pulseExport" disabled>EXPORT RECEIPT</button></div>
+            <div class="playground-readout pulse-readout" id="pulseMetrics"><div><span>STATE</span><b>READY TO SAMPLE</b></div><div><span>RNG PATH</span><b>PRESERVED</b></div></div>
+            <div class="pulse-note">Measures this device locally. It sends no telemetry, changes no render tier, and does not narrow seeded combination discovery. Unfamiliar combinations remain candidates for explicit construction and testing—not automatic proof of novelty or correctness.</div>
+          </div>
+
           <div class="instrument-card ghost-card">
             <div class="instrument-head"><b>PARALLEL UNIVERSE · GHOST GLASS</b><span id="ghostStatus">EMPTY</span></div>
             <div class="instrument-controls"><label class="ghost-load">LOAD GHOST<input id="ghostFile" type="file" accept="application/json,.json"></label><button id="ghostInspect">INSPECT DIFFERENCE</button><button id="ghostClear">CLEAR GHOST</button></div>
@@ -194,13 +202,16 @@
 <script src="snapshot-loader-core.js"></script>
 <script src="snapshot-load-core.js"></script>
 <script src="snapshot-load.js"></script>
+<script src="playground-core.js"></script>
+<script src="motion-coordinator.js"></script>
+<script src="frame-steward-core.js"></script>
+<script src="frame-steward.js"></script>
 <script src="render-budget-core.js"></script>
 <script src="render-budget.js"></script>
 <script src="interglass-executor.js"></script>
 <script src="app.js"></script>
 <script src="execution-history-view.js"></script>
 <script src="vessel-view.js"></script>
-<script src="playground-core.js"></script>
 <script src="playground-extensions-core.js"></script>
 <script src="ghost-glass-core.js"></script>
 <script src="playground.js"></script>
@@ -212,4 +223,5 @@
 <script src="starzoom-data.js"></script>
 <script src="starzoom.js"></script>
 <script src="starzoom-steward.js"></script>
+<script src="pulse-check.js"></script>
 </body></html>

@@ -28,7 +28,7 @@ async function selected(event){
     return;
   }
   status(`SNAPSHOT BINDING · ${outcome.receipt.metrics.atomCount} ATOMS`,'BINDING');
-  requestAnimationFrame(()=>publish(outcome));
+  setTimeout(()=>publish(outcome),0);
 }
 const file=$('file');if(file)file.addEventListener('change',selected);
 window.AXMGrammarGlassSnapshotLoad=Object.freeze({getState:()=>({...debug}),getReceipt:()=>window.GRAMMAR_GLASS_SNAPSHOT_LOAD_RECEIPT||null,contract:session.contract});
