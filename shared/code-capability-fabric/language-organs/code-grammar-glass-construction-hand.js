@@ -33,7 +33,7 @@ const {
   integerFromSeed
 } = base;
 
-const { OUTPUT_TARGET, DEFAULT_CSP, CONSTRUCTION_RULES, escapeHtml, renderWebMicroApp } = renderer;
+const { OUTPUT_TARGET, DEFAULT_CSP, PROGRAM_FAMILIES, CONSTRUCTION_RULES, escapeHtml, renderWebMicroApp } = renderer;
 const DEFAULT_INTENT = 'SEEDED_STRUCTURAL_MICRO_APP_EXPLORATION';
 const MAX_ARTIFACT_BYTES = 1000000;
 
@@ -94,6 +94,28 @@ function rendererImplementationDigest() {
   return hash(renderer.implementationSource());
 }
 
+const PROGRAM_STATE_SHAPES = Object.freeze({
+  LINEAGE_SIGNAL: 'BOUNDED_NUMERIC_REGISTER',
+  ATOM_FLOW_ROUTER: 'BOUNDED_GROUNDED_ATOM_CURSOR',
+  STATE_ORBIT: 'FINITE_PHASE_MACHINE',
+  RECEIPT_LEDGER: 'BOUNDED_APPEND_ONLY_EVENT_WINDOW'
+});
+
+function programFamilyForRoll(roll) {
+  if (!Number.isSafeInteger(roll) || roll < 0) return null;
+  return PROGRAM_FAMILIES[((roll - 1) % PROGRAM_FAMILIES.length + PROGRAM_FAMILIES.length) % PROGRAM_FAMILIES.length];
+}
+
+function programShapeDigest(programFamily) {
+  if (!PROGRAM_FAMILIES.includes(programFamily)) return null;
+  return hash({
+    programFamily,
+    architectureVersion: 'CONSTRUCTION_PROGRAM_FAMILIES_V1',
+    stateShape: PROGRAM_STATE_SHAPES[programFamily],
+    rollRouting: 'ONE_BASED_ROLL_MODULO_FAMILY_COUNT'
+  });
+}
+
 function createWebMicroAppAdapter() {
   const bindingProblems = [
     ...validateBank('html', htmlOrgan, htmlProfile, htmlKeyboard, htmlTemplates, htmlCheatcodes),
@@ -115,6 +137,7 @@ function createWebMicroAppAdapter() {
     ],
     bindingProblems,
     supportedAtomTypes: [...UNIVERSAL_ATOM_TYPES],
+    supportedProgramFamilies: [...PROGRAM_FAMILIES],
     constructionRules: CONSTRUCTION_RULES,
     containmentContract: {
       selfContainedSingleFile: true,
@@ -209,6 +232,10 @@ function validPlan(plan) {
     plan.schema === 'axm.code.grammar-glass-construction-plan.v1' &&
     plan.result === 'DETERMINISTIC_WEB_MICRO_APP_CONSTRUCTION_PLAN_READY' &&
     plan.outputTarget === OUTPUT_TARGET &&
+    Number.isSafeInteger(plan.roll) && plan.roll >= 0 &&
+    plan.programFamily === programFamilyForRoll(plan.roll) &&
+    plan.programFamilyIndex === PROGRAM_FAMILIES.indexOf(plan.programFamily) &&
+    plan.programShapeSha256 === programShapeDigest(plan.programFamily) &&
     digestCurrent(plan, 'constructionPlanSha256');
 }
 
@@ -219,6 +246,9 @@ function validArtifactRecord(artifact) {
   if (!Array.isArray(artifact.artifactReceipt.fileManifest) || artifact.artifactReceipt.fileManifest.length !== 1) return false;
   return artifact.artifactReceipt.constructionPlanSha256 === artifact.constructionPlanSha256 &&
     artifact.artifactReceipt.adapterSha256 === artifact.adapterSha256 &&
+    artifact.artifactReceipt.programFamily === artifact.programFamily &&
+    artifact.artifactReceipt.programShapeSha256 === artifact.programShapeSha256 &&
+    PROGRAM_FAMILIES.includes(artifact.programFamily) &&
     artifact.artifactReceipt.fileManifest[0].sha256 === artifact.files[0].sha256;
 }
 
@@ -297,6 +327,10 @@ function createConstructionPlan({ kilnCandidate, adapter = null, direction = nul
     `construction-hand:${kilnCandidate.combinationIdentitySha256}:${atomSetSha256}:${resolvedAdapter.adapterSha256}:${resolvedDirection.directionSha256}`,
     0
   );
+  const roll = Number.isSafeInteger(kilnCandidate.roll) && kilnCandidate.roll >= 0 ? kilnCandidate.roll : 0;
+  const programFamily = programFamilyForRoll(roll);
+  const programFamilyIndex = PROGRAM_FAMILIES.indexOf(programFamily);
+  const programShapeSha256 = programShapeDigest(programFamily);
   const parameters = {
     initialValue: 5 + integerFromSeed(constructionSeed, 'initial-value', 45),
     step: 1 + integerFromSeed(constructionSeed, 'step', 9),
@@ -336,6 +370,10 @@ function createConstructionPlan({ kilnCandidate, adapter = null, direction = nul
     version: '1.0.0',
     result: 'DETERMINISTIC_WEB_MICRO_APP_CONSTRUCTION_PLAN_READY',
     projectId: resolvedDirection.projectId,
+    roll,
+    programFamily,
+    programFamilyIndex,
+    programShapeSha256,
     outputTarget: OUTPUT_TARGET,
     discoveryKilnCandidateSha256: kilnCandidate.discoveryKilnCandidateSha256,
     combinationIdentitySha256: kilnCandidate.combinationIdentitySha256,
@@ -360,6 +398,7 @@ function createConstructionPlan({ kilnCandidate, adapter = null, direction = nul
     constructionProgram: [
       'VERIFY_EXACT_KILN_LINEAGE',
       'BIND_EXPLICIT_HTML_CSS_JAVASCRIPT_RENDERER',
+      'ROUTE_EXACT_RNG_ROLL_TO_DETERMINISTIC_PROGRAM_FAMILY',
       'MAP_EVERY_GROUNDED_ATOM_TO_A_STRUCTURAL_ROLE',
       'DERIVE_DETERMINISTIC_PARAMETERS',
       'RENDER_EXACT_UTF8_CANDIDATE',
@@ -369,6 +408,8 @@ function createConstructionPlan({ kilnCandidate, adapter = null, direction = nul
     truth: {
       everyGroundedAtomHasInfluenceReceipt: atomInfluenceReceipts.length === atoms.length,
       everyGroundedAtomAffectsSharedSeedAndVisibleLineage: true,
+      programFamilyIsExactRollBoundNotRuntimeRandomness: true,
+      programFamilyDiversityIsNotNoveltyOrQualityRanking: true,
       atomMappingIsStructuralAnalogyNotSemanticEquivalence: true,
       planContainsNoSourceBytes: true,
       planIsNotExecution: true,
@@ -416,6 +457,8 @@ function constructWebMicroApp({ plan, adapter = null } = {}) {
     result: 'CONSTRUCTED_ARTIFACT_DIGEST_RECEIPT_READY',
     constructionPlanSha256: plan.constructionPlanSha256,
     adapterSha256: resolvedAdapter.adapterSha256,
+    programFamily: plan.programFamily,
+    programShapeSha256: plan.programShapeSha256,
     outputTarget: OUTPUT_TARGET,
     fileCount: 1,
     fileManifest: [{ path: fileCore.path, mediaType: fileCore.mediaType, byteLength, sha256: fileCore.sha256 }],
@@ -431,6 +474,8 @@ function constructWebMicroApp({ plan, adapter = null } = {}) {
     result: 'DETERMINISTIC_WEB_MICRO_APP_CANDIDATE_CONSTRUCTED_NOT_VERIFIED',
     constructionPlanSha256: plan.constructionPlanSha256,
     adapterSha256: resolvedAdapter.adapterSha256,
+    programFamily: plan.programFamily,
+    programShapeSha256: plan.programShapeSha256,
     rendererImplementationSha256: resolvedAdapter.rendererImplementationSha256,
     outputTarget: OUTPUT_TARGET,
     files: [fileCore],
@@ -504,6 +549,7 @@ function verifyWebMicroApp({ artifact, plan, adapter = null } = {}) {
   add('SINGLE_INDEX_HTML_FILE', !!file && artifact.files.length === 1 && file.path === 'index.html' && file.mediaType === 'text/html; charset=utf-8', artifact.files.map(item => item.path));
   add('FILE_DIGEST_AND_BYTE_LENGTH_MATCH', !!file && file.sha256 === hash(source) && file.byteLength === Buffer.byteLength(source, 'utf8'), file && { sha256: file.sha256, byteLength: file.byteLength });
   add('ARTIFACT_PLAN_ADAPTER_BINDING_MATCH', artifact.constructionPlanSha256 === plan.constructionPlanSha256 && artifact.adapterSha256 === resolvedAdapter.adapterSha256, { artifactPlan: artifact.constructionPlanSha256, plan: plan.constructionPlanSha256 });
+  add('PROGRAM_FAMILY_BINDING_MATCH', artifact.programFamily === plan.programFamily && artifact.programShapeSha256 === plan.programShapeSha256 && metadata && metadata.programFamily === plan.programFamily && metadata.programShapeSha256 === plan.programShapeSha256 && source.includes(`data-program-family="${escapeHtml(plan.programFamily)}"`), { artifactFamily: artifact.programFamily, planFamily: plan.programFamily, metadataFamily: metadata && metadata.programFamily });
   add('HTML_DOCUMENT_SHAPE_PASS', source.startsWith('<!doctype html>\n<html') && countToken(source, '<html') === 1 && countToken(source, '</html>') === 1 && countToken(source, '<head>') === 1 && countToken(source, '</head>') === 1 && countToken(source, '<body>') === 1 && countToken(source, '</body>') === 1, hash(source.slice(0, 256)));
   add('CSS_BLOCK_BALANCE_PASS', !!styleMatch && balancedBraces(styleMatch[1]), styleMatch ? hash(styleMatch[1]) : null);
   add('JAVASCRIPT_SYNTAX_PASS', javascriptSyntaxPass, executableMatch ? hash(executableMatch[1]) : null);
@@ -520,6 +566,8 @@ function verifyWebMicroApp({ artifact, plan, adapter = null } = {}) {
     artifactSha256: artifact.artifactSha256,
     artifactReceiptSha256: artifact.artifactReceipt.artifactReceiptSha256,
     constructionPlanSha256: plan.constructionPlanSha256,
+    programFamily: plan.programFamily,
+    programShapeSha256: plan.programShapeSha256,
     adapterSha256: resolvedAdapter.adapterSha256,
     checks,
     failedChecks,
@@ -718,6 +766,8 @@ function createConstructionVisualBundle({
     directionSha256: direction.directionSha256,
     plan,
     constructionPlanSha256: plan.constructionPlanSha256,
+    programFamily: plan.programFamily,
+    programShapeSha256: plan.programShapeSha256,
     expectedArtifact: {
       artifactSha256: artifact.artifactSha256,
       artifactReceipt: artifact.artifactReceipt,
@@ -753,6 +803,10 @@ function augmentVisualSnapshotWithConstructionHand({ visualSnapshot, bundles = [
     bundle.schema !== 'axm.code.grammar-glass-construction-visual-bundle.v1' ||
     bundle.result !== 'CONSTRUCTION_VISUAL_BUNDLE_READY_NO_SOURCE_BYTES' ||
     !Number.isSafeInteger(bundle.roll) || bundle.roll < 0 ||
+    bundle.programFamily !== programFamilyForRoll(bundle.roll) ||
+    bundle.programShapeSha256 !== programShapeDigest(bundle.programFamily) ||
+    bundle.plan?.programFamily !== bundle.programFamily ||
+    bundle.plan?.programShapeSha256 !== bundle.programShapeSha256 ||
     !digestCurrent(bundle, 'constructionBundleSha256')
   );
   if (invalid.length || new Set(items.map(bundle => bundle.combinationIdentitySha256)).size !== items.length || new Set(items.map(bundle => bundle.roll)).size !== items.length) {
@@ -777,6 +831,9 @@ function augmentVisualSnapshotWithConstructionHand({ visualSnapshot, bundles = [
   const distinctLanguageSets = new Set(items.map(bundle => [...bundle.languageIds].sort().join('|'))).size;
   const distinctPlans = new Set(items.map(bundle => bundle.constructionPlanSha256)).size;
   const distinctArtifacts = new Set(items.map(bundle => bundle.expectedArtifact.artifactSha256)).size;
+  const programFamilyCounts = Object.fromEntries(PROGRAM_FAMILIES.map(programFamily => [programFamily, items.filter(bundle => bundle.programFamily === programFamily).length]));
+  const distinctProgramFamilies = Object.values(programFamilyCounts).filter(count => count > 0).length;
+  const distinctProgramShapes = new Set(items.map(bundle => bundle.programShapeSha256)).size;
   const coverageCore = {
     schema: 'axm.code.grammar-glass-construction-field-coverage.v1',
     version: '1.0.0',
@@ -793,11 +850,15 @@ function augmentVisualSnapshotWithConstructionHand({ visualSnapshot, bundles = [
     distinctLanguageSetCount: distinctLanguageSets,
     distinctConstructionPlanCount: distinctPlans,
     distinctArtifactCount: distinctArtifacts,
+    programFamilyCounts,
+    distinctProgramFamilyCount: distinctProgramFamilies,
+    distinctProgramShapeCount: distinctProgramShapes,
     sourceTextStoredInCoverage: false,
     truth: {
       coverageIsBoundedNotOpenEnded: true,
       missingRequestedRollsAreRecordedAsHolds: true,
       coverageIsNotNoveltyOrQualityRanking: true,
+      programFamilyCoverageIsDescriptiveNotAQualityScore: true,
       uncoveredRollsMustHold: true,
       everyBundleStillRequiresExplicitPreparationBuildArmAndRun: true
     },
@@ -848,6 +909,7 @@ function snapshot() {
     adapterSha256: adapter.adapterSha256,
     supportedOutputTargets: [OUTPUT_TARGET],
     supportedAtomTypes: [...UNIVERSAL_ATOM_TYPES],
+    supportedProgramFamilies: [...PROGRAM_FAMILIES],
     resultRail: [
       'DETERMINISTIC_WEB_MICRO_APP_CONSTRUCTION_PLAN_READY',
       'HELD_CONSTRUCTION_RULE_REQUIRED',
@@ -870,6 +932,9 @@ function snapshot() {
 module.exports = Object.freeze({
   OUTPUT_TARGET,
   MAX_ARTIFACT_BYTES,
+  PROGRAM_FAMILIES,
+  programFamilyForRoll,
+  programShapeDigest,
   CONSTRUCTION_RULES,
   createWebMicroAppAdapter,
   createConstructionDirection,

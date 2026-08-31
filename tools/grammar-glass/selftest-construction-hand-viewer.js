@@ -61,8 +61,13 @@ assert.deepEqual(visual.constructionHand.coverage.coveredRolls, [1, 2, 3, 4], 'c
 eq(visual.constructionHand.coverage.distinctConstructionPlanCount, 4, 'every covered roll has a distinct plan');
 eq(visual.constructionHand.coverage.distinctArtifactCount, 4, 'every covered roll has distinct source bytes');
 ok(visual.constructionHand.coverage.distinctLanguageSetCount >= 2, 'field explores multiple language sets');
+eq(visual.constructionHand.coverage.distinctProgramFamilyCount, 4, 'four-roll field covers every program family');
+eq(visual.constructionHand.coverage.distinctProgramShapeCount, 4, 'four-roll field carries four architecture-shape receipts');
+assert.deepEqual(bundles.map(item => item.programFamily), hand.PROGRAM_FAMILIES, 'rolls one through four route to the family registry in order'); n += 1;
+ok(hand.PROGRAM_FAMILIES.every(programFamily => visual.constructionHand.coverage.programFamilyCounts[programFamily] === 1), 'coverage counts each program family exactly once');
 eq(browserHand.fieldStatus(visual).result, 'CONSTRUCTION_FIELD_READY_WAITING_FOR_PROBE', 'field waits without selecting a plan');
 eq(browserHand.fieldStatus(visual, probe).result, 'EXACT_CONSTRUCTION_FIELD_PLAN_AVAILABLE', 'field status reports exact current plan');
+eq(browserHand.fieldStatus(visual, probe).exactProgramFamily, 'LINEAGE_SIGNAL', 'field status exposes exact current program architecture');
 eq(browserHand.findBundle(visual, probe).constructionBundleSha256, bundle.constructionBundleSha256, 'exact probe finds exact bundle');
 eq(JSON.stringify(visual).includes('<!doctype html>'), false, 'visual snapshot stores no generated source bytes');
 const replayVisual = hand.augmentVisualSnapshotWithConstructionHand({ visualSnapshot: visualBase, bundles });
@@ -93,6 +98,7 @@ eq(build.transientSource.sha256, bundle.expectedArtifact.fileSha256, 'browser so
 eq(build.transientSource.byteLength, bundle.expectedArtifact.byteLength, 'browser source byte length matches expected file');
 ok(build.transientSource.utf8Text.includes('AXM_CONSTRUCTION_HAND_READY_V1'), 'runtime source contains bounded ready observation');
 ok(build.transientSource.utf8Text.includes('AXM_CONSTRUCTION_HAND_CRASH_V1'), 'runtime source contains bounded crash observation');
+ok(build.transientSource.utf8Text.includes('data-program-family="LINEAGE_SIGNAL"'), 'runtime source carries exact program-family marker');
 eq(build.truth.executionOccurred, false, 'build is not execution');
 
 function fakeFrame() {
@@ -189,6 +195,13 @@ const alteredModeProbe = playground.createProbe(visual, { languageIds, mode: 'RI
 eq(browserHand.findBundle(visual, alteredModeProbe), null, 'covered roll with changed probe mode cannot borrow plan');
 const duplicateRollState = hand.augmentVisualSnapshotWithConstructionHand({ visualSnapshot: visualBase, bundles: [bundle, bundle] });
 eq(duplicateRollState.result, 'VALID_UNIQUE_CONSTRUCTION_VISUAL_BUNDLES_REQUIRED', 'duplicate field roll fails closed');
+const reroutedBundleCore = JSON.parse(JSON.stringify(bundle));
+delete reroutedBundleCore.constructionBundleSha256;
+reroutedBundleCore.programFamily = 'RECEIPT_LEDGER';
+reroutedBundleCore.programShapeSha256 = browserHand.shapeDigest('RECEIPT_LEDGER');
+reroutedBundleCore.constructionBundleSha256 = glass.hash(reroutedBundleCore);
+eq(browserHand.validBundle(reroutedBundleCore), false, 'browser rejects digest-current roll-to-family reroute tamper');
+eq(hand.augmentVisualSnapshotWithConstructionHand({ visualSnapshot: visualBase, bundles: [reroutedBundleCore] }).result, 'VALID_UNIQUE_CONSTRUCTION_VISUAL_BUNDLES_REQUIRED', 'snapshot augmentation rejects digest-current roll-to-family reroute tamper');
 const invalidAttemptState = hand.augmentVisualSnapshotWithConstructionHand({ visualSnapshot: visualBase, bundles: [], fieldAttempts: [{ roll: 'not-a-roll' }] });
 eq(invalidAttemptState.result, 'VALID_UNIQUE_CONSTRUCTION_FIELD_ATTEMPTS_REQUIRED', 'invalid requested roll fails closed');
 

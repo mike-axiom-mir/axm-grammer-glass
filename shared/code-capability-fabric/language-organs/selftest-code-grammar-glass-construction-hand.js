@@ -51,6 +51,9 @@ const de = (actual, expected, message) => { assert.deepEqual(actual, expected, m
   ok(plan.atomInfluenceReceipts.every(receipt => receipt.claimClass.includes('NOT_SOURCE_LANGUAGE_SEMANTIC_TRANSLATION')), 'structural analogy boundary retained');
   de(plan.atomInfluenceReceipts.map(receipt => receipt.atomId), kilnCandidate.groundedAtomRefs.map(atom => atom.atomId), 'atom order and identity preserved');
   eq(plan.truth.planContainsNoSourceBytes, true, 'plan remains digest and structure only');
+  eq(plan.roll, 11, 'construction plan binds exact RNG roll');
+  eq(plan.programFamily, 'STATE_ORBIT', 'one-based roll routes to deterministic program family');
+  ok(hand.PROGRAM_FAMILIES.includes(plan.programFamily), 'plan family belongs to explicit renderer registry');
 
   const replayPlan = hand.createConstructionPlan({ kilnCandidate, adapter, direction });
   eq(replayPlan.constructionPlanSha256, plan.constructionPlanSha256, 'same candidate direction and adapter replay exact plan');
@@ -83,6 +86,20 @@ const de = (actual, expected, message) => { assert.deepEqual(actual, expected, m
   ok(verification.checks.find(check => check.code === 'NO_DYNAMIC_CODE_NETWORK_OR_PERSISTENCE_API').pass, 'unsafe runtime APIs absent');
   eq(verification.truth.javascriptWasParsedNotExecuted, true, 'syntax verification does not claim execution');
   eq(JSON.stringify(verification).includes('<!doctype html>'), false, 'verification receipt excludes source text');
+  ok(verification.checks.find(check => check.code === 'PROGRAM_FAMILY_BINDING_MATCH').pass, 'program family and shape are statically bound');
+
+  const familyPlans = [1, 2, 3, 4].map(roll => {
+    const languageIds = playground.rollLanguages(visual, { count: 5, roll });
+    const familyProbe = playground.createProbe(visual, { languageIds, mode: 'GRAVITY_WELL', roll });
+    const familyCandidate = glass.createDiscoveryKilnCandidate({ probe: familyProbe, cycle, catalog, conditionRevision: condition, dayStart: day });
+    return hand.createConstructionPlan({ kilnCandidate: familyCandidate, adapter, direction });
+  });
+  de(familyPlans.map(item => item.programFamily), hand.PROGRAM_FAMILIES, 'first four RNG rolls cover all program architectures exactly once');
+  eq(new Set(familyPlans.map(item => item.programShapeSha256)).size, 4, 'program architectures have four distinct shape receipts');
+  const familyArtifacts = familyPlans.map(item => hand.constructWebMicroApp({ plan: item, adapter }));
+  eq(new Set(familyArtifacts.map(item => item.artifactSha256)).size, 4, 'four program architectures emit distinct source artifacts');
+  ok(familyArtifacts.every((item, index) => item.files[0].utf8Text.includes(`data-program-family="${hand.PROGRAM_FAMILIES[index]}"`)), 'every artifact visibly binds its exact program family');
+  ok(familyArtifacts.every((item, index) => hand.verifyWebMicroApp({ artifact: item, plan: familyPlans[index], adapter }).result === 'WEB_MICRO_APP_STATIC_VERIFICATION_PASS'), 'all four program architectures pass exact static verification');
 
   const noExecutor = hand.createConstructionRunRequest({ artifact, verification, plan });
   eq(noExecutor.result, 'HELD_CONSTRUCTION_EXECUTOR_REQUIRED', 'missing executor produces truthful hold');
@@ -133,9 +150,17 @@ const de = (actual, expected, message) => { assert.deepEqual(actual, expected, m
   eq(missingRule.result, 'HELD_CONSTRUCTION_RULE_REQUIRED', 'unsupported universal role holds rather than guessing code');
   de(missingRule.missingRuleTypes, ['UNKNOWN_ATOM'], 'missing construction rule named');
 
+  const reroutedPlanCore = JSON.parse(JSON.stringify(plan));
+  delete reroutedPlanCore.constructionPlanSha256;
+  reroutedPlanCore.programFamily = 'RECEIPT_LEDGER';
+  reroutedPlanCore.programFamilyIndex = 3;
+  reroutedPlanCore.programShapeSha256 = hand.programShapeDigest('RECEIPT_LEDGER');
+  const reroutedPlan = { ...reroutedPlanCore, constructionPlanSha256: glass.hash(reroutedPlanCore) };
+  eq(hand.constructWebMicroApp({ plan: reroutedPlan, adapter }).result, 'VALID_CONSTRUCTION_PLAN_REQUIRED', 'digest-current roll-to-family reroute tamper fails closed');
+
   const tampered = JSON.parse(JSON.stringify(artifact));
   delete tampered.artifactSha256;
-  tampered.files[0].utf8Text = tampered.files[0].utf8Text.replace('Lineage Signal', 'Tampered Signal');
+  tampered.files[0].utf8Text = tampered.files[0].utf8Text.replace('State Orbit', 'Tampered Orbit');
   tampered.files[0].byteLength = Buffer.byteLength(tampered.files[0].utf8Text, 'utf8');
   tampered.files[0].sha256 = glass.hash(tampered.files[0].utf8Text);
   const receiptCore = { ...tampered.artifactReceipt };

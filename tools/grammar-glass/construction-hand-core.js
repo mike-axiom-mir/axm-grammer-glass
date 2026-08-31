@@ -13,6 +13,9 @@
   function bytes(value) { return new TextEncoder().encode(String(value)).length; }
   function freeze(value) { if (value && typeof value === 'object' && !Object.isFrozen(value)) { Object.freeze(value); for (const child of Object.values(value)) freeze(child); } return value; }
   function digestCurrent(record, field) { if (!record || !record[field]) return false; const core = { ...record }, expected = core[field]; delete core[field]; return sha256(core) === expected; }
+  const stateShapes = Object.freeze({ LINEAGE_SIGNAL: 'BOUNDED_NUMERIC_REGISTER', ATOM_FLOW_ROUTER: 'BOUNDED_GROUNDED_ATOM_CURSOR', STATE_ORBIT: 'FINITE_PHASE_MACHINE', RECEIPT_LEDGER: 'BOUNDED_APPEND_ONLY_EVENT_WINDOW' });
+  function familyForRoll(roll) { return Number.isSafeInteger(roll) && roll >= 0 ? Renderer.PROGRAM_FAMILIES[((roll - 1) % Renderer.PROGRAM_FAMILIES.length + Renderer.PROGRAM_FAMILIES.length) % Renderer.PROGRAM_FAMILIES.length] : null; }
+  function shapeDigest(programFamily) { return Renderer.PROGRAM_FAMILIES.includes(programFamily) ? sha256({ programFamily, architectureVersion: 'CONSTRUCTION_PROGRAM_FAMILIES_V1', stateShape: stateShapes[programFamily], rollRouting: 'ONE_BASED_ROLL_MODULO_FAMILY_COUNT' }) : null; }
 
   function validBundle(bundle) {
     if (!bundle || bundle.schema !== 'axm.code.grammar-glass-construction-visual-bundle.v1' || bundle.result !== 'CONSTRUCTION_VISUAL_BUNDLE_READY_NO_SOURCE_BYTES' || !digestCurrent(bundle, 'constructionBundleSha256')) return false;
@@ -21,6 +24,7 @@
     if (!bundle.direction || !digestCurrent(bundle.direction, 'directionSha256') || bundle.directionSha256 !== bundle.direction.directionSha256) return false;
     if (!bundle.plan || !digestCurrent(bundle.plan, 'constructionPlanSha256') || bundle.constructionPlanSha256 !== bundle.plan.constructionPlanSha256) return false;
     if (bundle.plan.adapterSha256 !== bundle.adapterSha256 || bundle.plan.directionSha256 !== bundle.directionSha256 || bundle.plan.combinationIdentitySha256 !== bundle.combinationIdentitySha256) return false;
+    if (bundle.programFamily !== familyForRoll(bundle.roll) || bundle.programFamily !== bundle.plan.programFamily || bundle.plan.programFamilyIndex !== Renderer.PROGRAM_FAMILIES.indexOf(bundle.programFamily) || bundle.programShapeSha256 !== shapeDigest(bundle.programFamily) || bundle.programShapeSha256 !== bundle.plan.programShapeSha256) return false;
     if (bundle.adapter.rendererImplementationSha256 !== sha256(Renderer.implementationSource())) return false;
     if (!bundle.verification || bundle.verification.result !== 'WEB_MICRO_APP_STATIC_VERIFICATION_PASS' || !digestCurrent(bundle.verification, 'verificationSha256') || bundle.verificationSha256 !== bundle.verification.verificationSha256) return false;
     if (!bundle.runRequest || bundle.runRequest.result !== 'CONSTRUCTION_SANDBOX_REQUEST_READY_NOT_EXECUTED' || !digestCurrent(bundle.runRequest, 'requestSha256') || bundle.runRequestSha256 !== bundle.runRequest.requestSha256) return false;
@@ -47,6 +51,9 @@
       coverage.distinctLanguageSetCount === new Set(bundles.map(bundle => [...bundle.languageIds].sort().join('|'))).size &&
       coverage.distinctConstructionPlanCount === new Set(bundles.map(bundle => bundle.constructionPlanSha256)).size &&
       coverage.distinctArtifactCount === new Set(bundles.map(bundle => bundle.expectedArtifact.artifactSha256)).size &&
+      coverage.distinctProgramFamilyCount === new Set(bundles.map(bundle => bundle.programFamily)).size &&
+      coverage.distinctProgramShapeCount === new Set(bundles.map(bundle => bundle.programShapeSha256)).size &&
+      Renderer.PROGRAM_FAMILIES.every(programFamily => coverage.programFamilyCounts?.[programFamily] === bundles.filter(bundle => bundle.programFamily === programFamily).length) &&
       coverage.sourceTextStoredInCoverage === false;
   }
 
@@ -79,9 +86,13 @@
       distinctLanguageSetCount: coverage.distinctLanguageSetCount,
       distinctConstructionPlanCount: coverage.distinctConstructionPlanCount,
       distinctArtifactCount: coverage.distinctArtifactCount,
+      distinctProgramFamilyCount: coverage.distinctProgramFamilyCount,
+      distinctProgramShapeCount: coverage.distinctProgramShapeCount,
+      programFamilyCounts: { ...coverage.programFamilyCounts },
       currentRoll: probe?.roll ?? null,
       exactPlanAvailable: !!exact,
       exactConstructionPlanSha256: exact?.constructionPlanSha256 || null,
+      exactProgramFamily: exact?.programFamily || null,
       truth: { coverageIsNotNoveltyOrQualityRanking: true, uncoveredProbeMustHold: !!probe && !exact, executionOccurred: false },
       authority: 'NONE'
     });
@@ -103,6 +114,8 @@
       result: 'CONSTRUCTED_ARTIFACT_DIGEST_RECEIPT_READY',
       constructionPlanSha256: plan.constructionPlanSha256,
       adapterSha256: adapter.adapterSha256,
+      programFamily: plan.programFamily,
+      programShapeSha256: plan.programShapeSha256,
       outputTarget: Renderer.OUTPUT_TARGET,
       fileCount: 1,
       fileManifest: [{ path: fileCore.path, mediaType: fileCore.mediaType, byteLength, sha256: fileCore.sha256 }],
@@ -118,6 +131,8 @@
       result: 'DETERMINISTIC_WEB_MICRO_APP_CANDIDATE_CONSTRUCTED_NOT_VERIFIED',
       constructionPlanSha256: plan.constructionPlanSha256,
       adapterSha256: adapter.adapterSha256,
+      programFamily: plan.programFamily,
+      programShapeSha256: plan.programShapeSha256,
       rendererImplementationSha256: adapter.rendererImplementationSha256,
       outputTarget: Renderer.OUTPUT_TARGET,
       files: [fileCore],
@@ -208,5 +223,5 @@
     });
   }
 
-  return Object.freeze({ canon, sha256, digestCurrent, validBundle, validField, findBundle, fieldStatus, artifactFromSource, build });
+  return Object.freeze({ canon, sha256, digestCurrent, familyForRoll, shapeDigest, validBundle, validField, findBundle, fieldStatus, artifactFromSource, build });
 });

@@ -240,3 +240,40 @@ Focused verification:
 - full inherited `npm test`: PASS
 
 Live visual verification retains the previous **UNKNOWN** browser boundary.
+
+## Improvement 7 — deterministic construction-program diversity
+
+The bounded field previously emitted distinct parameters and colors through one
+Lineage Signal application shape. Exact RNG rolls now route deterministically
+across four materially different self-contained programs:
+
+- `LINEAGE_SIGNAL` — bounded numeric register and threshold branch
+- `ATOM_FLOW_ROUTER` — cursor over the exact grounded atom set
+- `STATE_ORBIT` — finite four-phase state machine
+- `RECEIPT_LEDGER` — bounded append-only in-memory event window
+
+Roll routing is one-based modulo the four-family registry, so rolls 1–4 cover all
+four architectures exactly once and later rolls repeat the routing without hidden
+runtime randomness. The construction plan records the exact roll, family, family
+index and architecture-shape digest. Those bindings continue through artifact,
+lineage metadata, static verification, source-free visual bundle and browser
+replay. Changing the family or source shape breaks exact verification.
+
+Construction Field coverage now records per-family counts plus distinct program
+family and architecture-shape counts alongside language, plan and artifact
+diversity. These are descriptive coverage receipts, never novelty, fitness,
+quality, selection or promotion signals. Every program retains the same
+default-deny CSP, no-network/no-storage boundary, explicit arm, one-run ceiling,
+runtime invariant message and transient-source release lifecycle.
+
+Focused verification:
+
+- shared Construction Hand organ: 90 assertions
+- viewer Construction Field / executor / ledger rail: 70 assertions
+- digest-current roll-to-family reroute tampering rejected in Node and browser cores
+- default eight-roll snapshot: two bundles per family, four distinct architecture
+  shapes, eight distinct plans and artifacts, zero holds and zero HTML source bytes
+- full inherited `npm test`: PASS
+
+Live visual verification remains **UNKNOWN** under the existing browser-policy
+boundary; static and state-machine receipts are not substituted for visual proof.

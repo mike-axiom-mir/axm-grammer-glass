@@ -12,10 +12,10 @@ function render(){
  if(status)status.textContent=state.terminalState?state.terminalState.replaceAll('_',' '):state.state==='EXECUTION_READY'?'ARMED':build?'SOURCE PREVIEW':exact?'PLAN AVAILABLE':probe?'NO EXACT PLAN':'WAITING';
  if(readout){
   if(state.lastReceipt)readout.innerHTML=`<span>BOUND RECEIPT</span><b>${state.terminalState.replaceAll('_',' ')}</b><small>runtime ${short(state.lastReceipt.runtimeReceiptSha256)} · artifact ${short(state.artifactSha256)}</small>`;
-  else if(build)readout.innerHTML=`<span>TRANSIENT SOURCE PREVIEW · NOT EXECUTED</span><b>${build.transientSource.byteLength} UTF-8 bytes</b><small>file ${short(build.transientSource.sha256)} · plan ${short(build.artifact.constructionPlanSha256)}</small>`;
-  else if(exact)readout.innerHTML=`<span>CONSTRUCTION FIELD · ROLL ${exact.roll}</span><b>${exact.groundedAtomRefs.length} grounded atoms · exact plan available</b><small>${field.bundleCount} rolls · ${field.distinctArtifactCount} distinct artifacts · plan ${short(exact.constructionPlanSha256)}</small>`;
+  else if(build)readout.innerHTML=`<span>TRANSIENT SOURCE PREVIEW · ${build.bundle.programFamily.replaceAll('_',' ')}</span><b>${build.transientSource.byteLength} UTF-8 bytes</b><small>file ${short(build.transientSource.sha256)} · plan ${short(build.artifact.constructionPlanSha256)}</small>`;
+  else if(exact)readout.innerHTML=`<span>CONSTRUCTION FIELD · ROLL ${exact.roll}</span><b>${exact.programFamily.replaceAll('_',' ')} · exact plan available</b><small>${exact.groundedAtomRefs.length} atoms · ${field.distinctProgramFamilyCount} program families · plan ${short(exact.constructionPlanSha256)}</small>`;
   else if(probe)readout.innerHTML=`<span>ROLL ${probe.roll} · OUTSIDE EXACT FIELD</span><b>HELD · NO EXACT PLAN</b><small>Recorded field covers rolls ${(field?.coveredRolls||[]).join(', ')||'none'}. No renderer is guessed.</small>`;
-  else readout.innerHTML=`<span>BOUNDED CONSTRUCTION FIELD</span><b>${field?.bundleCount||0} exact plans ready</b><small>${field?.distinctLanguageSetCount||0} language sets · ${field?.distinctArtifactCount||0} distinct artifacts · roll to explore</small>`;
+  else readout.innerHTML=`<span>BOUNDED CONSTRUCTION FIELD</span><b>${field?.bundleCount||0} exact plans ready</b><small>${field?.distinctProgramFamilyCount||0} program families · ${field?.distinctLanguageSetCount||0} language sets · roll to explore</small>`;
  }
  if(buildButton)buildButton.disabled=prep?.result!=='DISCOVERY_PREPARATION_BOUND_TO_CONSTRUCTION_PLAN'||!exact||!!build;
  if(armButton)armButton.disabled=!build||!['EMPTY','SOURCE_RELEASED'].includes(state.state);
