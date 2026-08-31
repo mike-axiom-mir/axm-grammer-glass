@@ -163,7 +163,7 @@ an explicit arm and external runtime observation are still required.
 
 Focused verification:
 
-- Construction Hand shared organ: 61 assertions
+- Construction Hand shared organ: 72 assertions
 - exact replay and changed-direction divergence covered
 - every selected atom has a lineage and influence receipt
 - current but renderer-divergent tampering fails closed
@@ -171,5 +171,40 @@ Focused verification:
   produce named holds
 - full inherited `npm test`: PASS
 
-Live browser execution and visual verification remain **UNKNOWN** for this pass.
-No runtime-correctness or visual-quality PASS is claimed.
+At that point live browser execution and visual verification remained **UNKNOWN**.
+No runtime-correctness or visual-quality PASS was claimed by Construction Hand v1.
+
+## Improvement 5 — viewer Construction Hand bridge
+
+The generated visual snapshot now carries one source-free construction bundle for
+the exact deterministic first `ROLL 5` combination. The bundle contains the
+grounded atom refs, direction, plan, adapter, static receipt, expected artifact
+digests and digest-only sandbox request, but no generated HTML bytes. Any other
+roll continues to hold at the missing adapter.
+
+The browser replays the same shared renderer only after explicit preparation and
+refuses to expose source unless the reconstructed artifact, receipt, file,
+byte-length, verification and request bindings all match. The visible sequence is:
+
+`PREPARE → BUILD SOURCE → SOURCE PREVIEW → ARM SOURCE → RUN SOURCE ONCE → RECEIPT → RELEASE SOURCE`
+
+The source preview is inert text. Arm shows a placeholder in a dedicated iframe.
+Run loads the exact transient source once in `sandbox="allow-scripts"` without
+same-origin authority. READY or STATE observations must match the exact plan and
+adapter and arrive from an opaque origin. PASS means only that the local bounded
+invariant held; FAIL, CRASH and TIMEOUT remain separate terminal observations.
+The receipt binds the request, plan, adapter, artifact, file, executor and runtime
+payload digests, and the local ledger records that exact lineage.
+
+Focused verification:
+
+- shared Construction Hand organ: 72 assertions
+- viewer construction, executor and ledger rail: 36 assertions
+- byte-for-byte Node/browser renderer parity, non-executing arm, one-attempt run,
+  opaque-origin enforcement, explicit release and unmatched-roll hold covered
+- full inherited `npm test`: PASS
+
+Live full-viewer visual verification remains **UNKNOWN**. The connected cloud
+browser rejected the local workspace URL and `data:` pages by policy, while the
+workspace has no local browser executable. The source, state-machine and receipt
+tests above do not substitute for a screenshot or interaction claim.

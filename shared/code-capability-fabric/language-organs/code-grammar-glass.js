@@ -93,6 +93,8 @@ module.exports = Object.freeze({
   verifyConstructedWebMicroApp: constructionHand.verifyWebMicroApp,
   createConstructionRunRequest: constructionHand.createConstructionRunRequest,
   createTransientConstructionLaunchEnvelope: constructionHand.createTransientLaunchEnvelope,
+  createConstructionVisualBundle: constructionHand.createConstructionVisualBundle,
+  augmentVisualSnapshotWithConstructionHand: constructionHand.augmentVisualSnapshotWithConstructionHand,
   constructionHandSnapshot: constructionHand.snapshot,
   snapshot: observation.snapshot
 });

@@ -151,10 +151,24 @@
             <button id="kilnPrepare" disabled>PREPARE CANDIDATE</button>
             <button id="kilnInspect">INSPECT</button>
             <button id="kilnExport" disabled>EXPORT LEDGER</button>
-            <button id="kilnArm" disabled>ARM BOUND CANDIDATE</button>
-            <button id="kilnRun" disabled>RUN ONCE</button>
+            <button id="kilnArm" disabled>ARM RECORDED CANDIDATE</button>
+            <button id="kilnRun" disabled>RUN RECORDED ONCE</button>
           </div>
-          <div class="kiln-truth">Preparation records the exact combination, atoms, relations, carries, memory paths and source digests. A static page stops at <b>HELD · ADAPTER</b> unless that exact candidate lineage already exists in the snapshot. “New here” means only new to this local ledger—not globally novel.</div>
+          <section class="construction-hand" aria-labelledby="constructionTitle">
+            <div class="construction-head"><div><span>EXACT PLAN → TRANSIENT SOURCE → ISOLATED RUN</span><h4 id="constructionTitle">CONSTRUCTION HAND</h4></div><b id="constructionStatus" aria-live="polite">WAITING</b></div>
+            <div class="kiln-readout construction-readout" id="constructionReadout"><span>CONSTRUCTION HAND</span><b>WAITING FOR PREPARATION</b><small>Roll, then prepare the exact combination.</small></div>
+            <div class="construction-actions">
+              <button id="constructionBuild" disabled>1 · BUILD SOURCE</button>
+              <button id="constructionArm" disabled>2 · ARM SOURCE</button>
+              <button id="constructionRun" disabled>3 · RUN SOURCE ONCE</button>
+              <button id="constructionRelease" disabled>RELEASE SOURCE</button>
+            </div>
+            <div class="construction-workspace">
+              <div><small>ISOLATED PREVIEW / RUNTIME</small><iframe id="constructionFrame" title="Construction Hand isolated candidate sandbox" sandbox="allow-scripts"></iframe></div>
+              <div><small>SOURCE PREVIEW · TEXT ONLY · NOT EXECUTED</small><pre id="constructionSourcePreview">No source built. Exact source bytes appear here only after BUILD SOURCE.</pre></div>
+            </div>
+          </section>
+          <div class="kiln-truth">Preparation records exact combination and lineage digests. One precomputed, exact first-roll plan can construct deterministic source in this session; unmatched RNG combinations still stop at <b>HELD · ADAPTER</b>. Build, arm and run are separate explicit actions, one attempt only. A PASS is a bounded runtime invariant—not quality, correctness, selection, promotion or canon. “New here” means only new to this local ledger.</div>
         </div>
 
         <div class="instrument-grid">
@@ -224,6 +238,9 @@
 <script src="snapshot-load-core.js"></script>
 <script src="snapshot-load.js"></script>
 <script src="playground-core.js"></script>
+<script src="../../shared/code-capability-fabric/language-organs/code-grammar-glass-construction-renderer.js"></script>
+<script src="construction-hand-core.js"></script>
+<script src="construction-hand-executor-core.js"></script>
 <script src="discovery-kiln-core.js"></script>
 <script src="motion-coordinator.js"></script>
 <script src="frame-steward-core.js"></script>
@@ -231,6 +248,7 @@
 <script src="render-budget-core.js"></script>
 <script src="render-budget.js"></script>
 <script src="interglass-executor.js"></script>
+<script src="construction-hand-executor.js"></script>
 <script src="app.js"></script>
 <script src="execution-history-view.js"></script>
 <script src="vessel-view.js"></script>
@@ -238,6 +256,7 @@
 <script src="ghost-glass-core.js"></script>
 <script src="playground.js"></script>
 <script src="discovery-kiln.js"></script>
+<script src="construction-hand.js"></script>
 <script src="playground-touch.js"></script>
 <script src="playground-audio.js"></script>
 <script src="constellation-replay.js"></script>

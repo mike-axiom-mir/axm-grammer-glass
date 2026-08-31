@@ -3,6 +3,7 @@
 const vm = require('vm');
 const base = require('./code-grammar-glass-base.js');
 const interglass = require('./code-grammar-glass-interglass.js');
+const renderer = require('./code-grammar-glass-construction-renderer.js');
 
 const htmlOrgan = require('./organs/001-html/organ.json');
 const htmlProfile = require('./organs/001-html/grammar.profile.json');
@@ -32,39 +33,9 @@ const {
   integerFromSeed
 } = base;
 
-const OUTPUT_TARGET = 'SELF_CONTAINED_OFFLINE_HTML_MICRO_APP';
+const { OUTPUT_TARGET, DEFAULT_CSP, CONSTRUCTION_RULES, escapeHtml, renderWebMicroApp } = renderer;
 const DEFAULT_INTENT = 'SEEDED_STRUCTURAL_MICRO_APP_EXPLORATION';
 const MAX_ARTIFACT_BYTES = 1000000;
-const DEFAULT_CSP = interglass.DEFAULT_CSP;
-const CONSTRUCTION_RULES = deepFreeze({
-  STATE: { ruleId: 'WEB_STATE_REGISTER_V1', targetRole: 'STATE_REGISTER', parameterSlot: 'initialValue' },
-  CONDITION: { ruleId: 'WEB_THRESHOLD_BRANCH_V1', targetRole: 'CONDITION_BRANCH', parameterSlot: 'threshold' },
-  TRANSFORMATION: { ruleId: 'WEB_BOUNDED_STEP_V1', targetRole: 'STATE_TRANSFORMATION', parameterSlot: 'step' },
-  CONTROL_FLOW: { ruleId: 'WEB_SINGLE_EVENT_PIPELINE_V1', targetRole: 'CONTROL_FLOW', parameterSlot: 'direction' },
-  TYPE: { ruleId: 'WEB_SAFE_INTEGER_NORMALIZATION_V1', targetRole: 'RUNTIME_SHAPE', parameterSlot: 'modulus' },
-  INTERFACE: { ruleId: 'WEB_BUTTON_READOUT_V1', targetRole: 'INTERACTION_SURFACE', parameterSlot: 'actionLabel' },
-  EFFECT: { ruleId: 'WEB_RENDER_EFFECT_V1', targetRole: 'VISIBLE_EFFECT', parameterSlot: 'energyScalePpm' },
-  DEPENDENCY: { ruleId: 'WEB_INTERNAL_MANIFEST_BINDING_V1', targetRole: 'INTERNAL_DEPENDENCY', parameterSlot: 'lineageCount' },
-  VERIFICATION: { ruleId: 'WEB_RUNTIME_INVARIANT_V1', targetRole: 'VERIFICATION_READOUT', parameterSlot: 'verificationMode' },
-  FAILURE: { ruleId: 'WEB_VISIBLE_HOLD_STATE_V1', targetRole: 'FAILURE_SURFACE', parameterSlot: 'failureLabel' },
-  REPRESENTATION: { ruleId: 'WEB_LINEAGE_CARD_V1', targetRole: 'REPRESENTATION', parameterSlot: 'themeHue' }
-});
-
-function escapeHtml(value) {
-  return String(value)
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;')
-    .replace(/"/g, '&quot;')
-    .replace(/'/g, '&#39;');
-}
-
-function safeJson(value) {
-  return JSON.stringify(value)
-    .replace(/</g, '\\u003c')
-    .replace(/\u2028/g, '\\u2028')
-    .replace(/\u2029/g, '\\u2029');
-}
 
 function countToken(value, token) {
   return String(value).split(token).length - 1;
@@ -120,14 +91,7 @@ function validateBank(languageId, organ, profile, keyboard, templates, cheatcode
 }
 
 function rendererImplementationDigest() {
-  return hash({
-    outputTarget: OUTPUT_TARGET,
-    csp: DEFAULT_CSP,
-    constructionRules: CONSTRUCTION_RULES,
-    escapeHtml: escapeHtml.toString(),
-    safeJson: safeJson.toString(),
-    renderWebMicroApp: renderWebMicroApp.toString()
-  });
+  return hash(renderer.implementationSource());
 }
 
 function createWebMicroAppAdapter() {
@@ -416,88 +380,6 @@ function createConstructionPlan({ kilnCandidate, adapter = null, direction = nul
   return deepFreeze({ ...core, constructionPlanSha256: hash(core) });
 }
 
-function renderWebMicroApp(plan, adapter) {
-  const metadata = {
-    schema: 'axm.code.grammar-glass-constructed-micro-app-lineage.v1',
-    constructionPlanSha256: plan.constructionPlanSha256,
-    adapterSha256: adapter.adapterSha256,
-    combinationIdentitySha256: plan.combinationIdentitySha256,
-    draftStarSha256: plan.draftStarSha256,
-    compositeLineageDigest: plan.compositeLineageDigest,
-    atomInfluenceReceipts: plan.atomInfluenceReceipts,
-    truth: {
-      candidateOnly: true,
-      runtimeCorrectnessClaimed: false,
-      structuralAnalogyIsSemanticEquivalence: false
-    }
-  };
-  const config = {
-    initialValue: plan.parameters.initialValue,
-    step: plan.parameters.step,
-    threshold: plan.parameters.threshold,
-    direction: plan.parameters.direction,
-    modulus: plan.parameters.modulus,
-    actionLabel: plan.parameters.actionLabel,
-    failureLabel: plan.parameters.failureLabel,
-    energyScalePpm: plan.parameters.energyScalePpm,
-    verificationMode: plan.parameters.verificationMode,
-    atomCount: plan.groundedAtomCount,
-    grammarCount: plan.contributingGrammarIdentities.length,
-    connectionCount: plan.connectionClasses.length
-  };
-  const chips = plan.atomInfluenceReceipts.map(receipt => `<li title="${escapeHtml(receipt.atomId)}"><b>${escapeHtml(receipt.atomType)}</b><span>${escapeHtml(receipt.languageId)}</span></li>`).join('');
-  const grammars = plan.contributingGrammarIdentities.map(value => escapeHtml(value)).join(' · ');
-  return `<!doctype html>
-<html lang="en">
-<head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width,initial-scale=1">
-  <meta http-equiv="Content-Security-Policy" content="${escapeHtml(adapter.containmentContract.contentSecurityPolicy)}">
-  <title>Grammar Glass · Constructed Signal</title>
-  <style id="axm-style">
-    :root{color-scheme:dark;--h:${plan.parameters.themeHue};--tilt:${plan.parameters.themeTilt}deg;--energy:.35}
-    *{box-sizing:border-box}html,body{min-height:100%;margin:0}body{display:grid;place-items:center;padding:24px;background:radial-gradient(circle at 50% 0%,hsl(var(--h) 62% 18%),#05070d 62%);color:#eefaff;font:14px/1.45 Inter,system-ui,sans-serif}
-    main{width:min(760px,100%);border:1px solid hsl(var(--h) 88% 70%/.35);border-radius:28px;padding:clamp(22px,5vw,48px);background:linear-gradient(145deg,#101725ee,#070b12f5);box-shadow:0 28px 90px #000a,0 0 calc(30px + 60px * var(--energy)) hsl(var(--h) 90% 60%/.16);transform:rotate(var(--tilt));transition:box-shadow .2s ease,transform .2s ease}
-    .eyebrow,.meta{font:700 11px/1.2 ui-monospace,monospace;letter-spacing:.16em;text-transform:uppercase;color:hsl(var(--h) 88% 76%)}h1{margin:.55rem 0 .25rem;font-size:clamp(30px,7vw,68px);letter-spacing:-.055em}.sub{margin:0 0 28px;color:#9fb0c7}
-    .signal{display:grid;grid-template-columns:1fr auto;gap:18px;align-items:end;padding:22px;border-radius:20px;background:#03060b99;border:1px solid #ffffff12}.value{font:800 clamp(54px,14vw,112px)/.8 ui-monospace,monospace;letter-spacing:-.1em}.phase{text-align:right}.phase strong{display:block;font-size:18px}.phase span{color:#91a2b8}
-    button{width:100%;margin:18px 0 22px;padding:15px 18px;border:0;border-radius:14px;background:hsl(var(--h) 88% 67%);color:#041015;font:900 13px ui-monospace,monospace;letter-spacing:.1em;cursor:pointer}button:focus-visible{outline:3px solid white;outline-offset:3px}button:active{transform:translateY(1px)}
-    .receipt{display:flex;justify-content:space-between;gap:14px;padding:12px 0;border-top:1px solid #ffffff12;font:12px ui-monospace,monospace}.pass{color:#82f5b4}.hold{color:#ffbd77}
-    ul{display:flex;flex-wrap:wrap;gap:7px;padding:0;margin:18px 0 0;list-style:none}li{display:flex;gap:7px;padding:6px 9px;border:1px solid hsl(var(--h) 60% 64%/.22);border-radius:999px;background:hsl(var(--h) 35% 18%/.4);font:10px ui-monospace,monospace}li span{color:#8495aa}
-    footer{margin-top:18px;color:#74859a;font:10px/1.5 ui-monospace,monospace;overflow-wrap:anywhere}@media(max-width:520px){main{transform:none}.signal{grid-template-columns:1fr}.phase{text-align:left}}
-  </style>
-</head>
-<body>
-  <main id="app" data-plan="${escapeHtml(plan.constructionPlanSha256)}">
-    <div class="eyebrow">Construction Hand · deterministic candidate</div>
-    <h1>Lineage Signal</h1>
-    <p class="sub">${grammars}</p>
-    <section class="signal" aria-live="polite"><div class="value" id="value">—</div><div class="phase"><strong id="phase">READY</strong><span id="detail">threshold ${plan.parameters.threshold}</span></div></section>
-    <button id="pulse" type="button">${escapeHtml(plan.parameters.actionLabel)}</button>
-    <div class="receipt"><span id="invariant">CHECKING INVARIANT</span><span>atoms ${plan.groundedAtomCount} · relations ${plan.connectionClasses.length}</span></div>
-    <ul aria-label="Grounded atom lineage">${chips}</ul>
-    <footer>candidate ${escapeHtml(plan.combinationIdentitySha256)} · no network · no persistence · not selected or promoted</footer>
-  </main>
-  <script type="application/json" id="axm-lineage">${safeJson(metadata)}</script>
-  <script id="axm-app">(()=>{'use strict';
-    const config=${safeJson(config)};
-    const state={value:config.initialValue,ticks:0};
-    const app=document.getElementById('app');
-    const valueNode=document.getElementById('value');
-    const phaseNode=document.getElementById('phase');
-    const detailNode=document.getElementById('detail');
-    const invariantNode=document.getElementById('invariant');
-    const pulseNode=document.getElementById('pulse');
-    const normalize=value=>Number.isSafeInteger(value)?((value%config.modulus)+config.modulus)%config.modulus:0;
-    const invariant=()=>Number.isSafeInteger(state.value)&&state.value>=0&&state.value<config.modulus;
-    const render=()=>{const above=state.value>=config.threshold;const valid=invariant();valueNode.textContent=String(state.value).padStart(2,'0');phaseNode.textContent=above?'THRESHOLD MET':'BELOW THRESHOLD';detailNode.textContent='tick '+state.ticks+' · step '+(config.direction*config.step);invariantNode.textContent=valid?'INVARIANT PASS':config.failureLabel;invariantNode.className=valid?'pass':'hold';app.style.setProperty('--energy',String((config.energyScalePpm/1000000)*(0.35+state.value/config.modulus)));};
-    const pulse=()=>{state.value=normalize(state.value+(config.direction*config.step));state.ticks+=1;render();};
-    pulseNode.addEventListener('click',pulse,{passive:true});render();
-  })();</script>
-</body>
-</html>
-`;
-}
-
 function constructWebMicroApp({ plan, adapter = null } = {}) {
   const resolvedAdapter = adapter || createWebMicroAppAdapter();
   if (!validAdapter(resolvedAdapter)) {
@@ -781,6 +663,131 @@ function createTransientLaunchEnvelope({ artifact, verification, runRequest } = 
   return deepFreeze({ ...core, launchEnvelopeSha256: hash(core) });
 }
 
+function createConstructionVisualBundle({
+  kilnCandidate,
+  plan,
+  adapter = null,
+  direction,
+  executorProfile
+} = {}) {
+  const resolvedAdapter = adapter || createWebMicroAppAdapter();
+  if (!validKilnCandidate(kilnCandidate) || !validPlan(plan) || !validAdapter(resolvedAdapter) || !validDirection(direction)) {
+    return deepFreeze({ schema: 'axm.code.grammar-glass-construction-visual-bundle.v1', result: 'VALID_KILN_PLAN_ADAPTER_AND_DIRECTION_REQUIRED', authority: 'NONE' });
+  }
+  if (plan.discoveryKilnCandidateSha256 !== kilnCandidate.discoveryKilnCandidateSha256 || plan.adapterSha256 !== resolvedAdapter.adapterSha256 || plan.directionSha256 !== direction.directionSha256) {
+    return deepFreeze({ schema: 'axm.code.grammar-glass-construction-visual-bundle.v1', result: 'CONSTRUCTION_VISUAL_BUNDLE_LINEAGE_MISMATCH', authority: 'NONE' });
+  }
+  const artifact = constructWebMicroApp({ plan, adapter: resolvedAdapter });
+  const verification = verifyWebMicroApp({ artifact, plan, adapter: resolvedAdapter });
+  const runRequest = createConstructionRunRequest({ artifact, verification, plan, executorProfile, requestedBy: 'EXPLICIT_VIEWER_CONSTRUCTION_PREPARATION' });
+  if (artifact.result !== 'DETERMINISTIC_WEB_MICRO_APP_CANDIDATE_CONSTRUCTED_NOT_VERIFIED' || verification.result !== 'WEB_MICRO_APP_STATIC_VERIFICATION_PASS' || runRequest.result !== 'CONSTRUCTION_SANDBOX_REQUEST_READY_NOT_EXECUTED') {
+    const holdCore = {
+      schema: 'axm.code.grammar-glass-construction-visual-bundle.v1',
+      version: '1.0.0',
+      result: 'CONSTRUCTION_VISUAL_BUNDLE_PREPARATION_HELD',
+      discoveryKilnCandidateSha256: kilnCandidate.discoveryKilnCandidateSha256,
+      constructionPlanSha256: plan.constructionPlanSha256,
+      artifactResult: artifact.result,
+      verificationResult: verification.result,
+      runRequestResult: runRequest.result,
+      truth: { sourceTextStoredInBundle: false, executionOccurred: false, holdIsNotCandidateFailure: true },
+      authority: 'NONE'
+    };
+    return deepFreeze({ ...holdCore, constructionBundleSha256: hash(holdCore) });
+  }
+  const core = {
+    schema: 'axm.code.grammar-glass-construction-visual-bundle.v1',
+    version: '1.0.0',
+    result: 'CONSTRUCTION_VISUAL_BUNDLE_READY_NO_SOURCE_BYTES',
+    combinationIdentitySha256: kilnCandidate.combinationIdentitySha256,
+    probeSha256: kilnCandidate.probeSha256,
+    languageIds: [...kilnCandidate.languageIds],
+    groundedAtomRefs: kilnCandidate.groundedAtomRefs.map(atom => ({ ...atom })),
+    discoveryKilnCandidateSha256: kilnCandidate.discoveryKilnCandidateSha256,
+    formationSha256: kilnCandidate.formation.formationSha256,
+    mirrorObservationSha256: kilnCandidate.mirrorObservation.mirrorObservationSha256,
+    draftStarSha256: kilnCandidate.draftStar.starSha256,
+    candidatePacketSha256: kilnCandidate.candidatePacket.candidatePacketSha256,
+    compositeLineageDigest: kilnCandidate.draftStar.compositeLineageDigest,
+    adapter: resolvedAdapter,
+    adapterSha256: resolvedAdapter.adapterSha256,
+    direction,
+    directionSha256: direction.directionSha256,
+    plan,
+    constructionPlanSha256: plan.constructionPlanSha256,
+    expectedArtifact: {
+      artifactSha256: artifact.artifactSha256,
+      artifactReceipt: artifact.artifactReceipt,
+      artifactReceiptSha256: artifact.artifactReceipt.artifactReceiptSha256,
+      fileSha256: artifact.files[0].sha256,
+      byteLength: artifact.files[0].byteLength
+    },
+    verification,
+    verificationSha256: verification.verificationSha256,
+    runRequest,
+    runRequestSha256: runRequest.requestSha256,
+    truth: {
+      sourceTextStoredInBundle: false,
+      browserMustReplayExactBoundRenderer: true,
+      browserReplayMustMatchExpectedArtifactDigest: true,
+      staticVerificationAlreadyPerformedOnExpectedBytes: true,
+      bundleIsNotExecutionOrRuntimeCorrectness: true,
+      exactCombinationOnly: true,
+      automaticReentrySelectionPromotionOrCanon: false
+    },
+    authority: 'NONE'
+  };
+  return deepFreeze({ ...core, constructionBundleSha256: hash(core) });
+}
+
+function augmentVisualSnapshotWithConstructionHand({ visualSnapshot, bundles = [] } = {}) {
+  if (!visualSnapshot || visualSnapshot.schema !== 'axm.code.grammar-glass-visual-snapshot.v1' || !digestCurrent(visualSnapshot, 'visualSnapshotSha256')) {
+    return deepFreeze({ schema: 'axm.code.grammar-glass-visual-snapshot.v1', result: 'VALID_VISUAL_SNAPSHOT_REQUIRED_FOR_CONSTRUCTION_HAND', authority: 'NONE' });
+  }
+  const items = Array.isArray(bundles) ? bundles : [];
+  const invalid = items.filter(bundle =>
+    !bundle ||
+    bundle.schema !== 'axm.code.grammar-glass-construction-visual-bundle.v1' ||
+    bundle.result !== 'CONSTRUCTION_VISUAL_BUNDLE_READY_NO_SOURCE_BYTES' ||
+    !digestCurrent(bundle, 'constructionBundleSha256')
+  );
+  if (invalid.length || new Set(items.map(bundle => bundle.combinationIdentitySha256)).size !== items.length) {
+    return deepFreeze({ schema: 'axm.code.grammar-glass-visual-snapshot.v1', result: 'VALID_UNIQUE_CONSTRUCTION_VISUAL_BUNDLES_REQUIRED', invalidCount: invalid.length, authority: 'NONE' });
+  }
+  const stateCore = {
+    schema: 'axm.code.grammar-glass-construction-hand-visual-state.v1',
+    version: '1.0.0',
+    result: items.length ? 'CONSTRUCTION_HAND_EXACT_PLANS_AVAILABLE' : 'CONSTRUCTION_HAND_NO_EXACT_PLANS_RECORDED',
+    bundleCount: items.length,
+    bundles: items,
+    truth: {
+      sourceTextStoredInVisualSnapshot: false,
+      unmatchedPlaygroundCombinationMustHold: true,
+      browserMayReplayOnlyExactBoundRenderer: true,
+      runtimeExecutionRequiresExplicitArmAndRunOnce: true,
+      automaticPromotion: false
+    },
+    authority: 'NONE'
+  };
+  const constructionHand = { ...stateCore, visualStateSha256: hash(stateCore) };
+  const core = {
+    ...visualSnapshot,
+    constructionHand,
+    integration: {
+      ...(visualSnapshot.integration || {}),
+      constructionHandLane: 'EXACT_PLAN_TO_SOURCE_TO_EXPLICIT_BROWSER_SANDBOX'
+    },
+    truth: {
+      ...(visualSnapshot.truth || {}),
+      constructionPlanAvailabilityIsNotSelectionOrQuality: true,
+      constructionSourceStoredInSnapshot: false,
+      constructionExecutionOccurred: false
+    }
+  };
+  delete core.visualSnapshotSha256;
+  return deepFreeze({ ...core, visualSnapshotSha256: hash(core) });
+}
+
 function snapshot() {
   const adapter = createWebMicroAppAdapter();
   const core = {
@@ -820,5 +827,7 @@ module.exports = Object.freeze({
   verifyWebMicroApp,
   createConstructionRunRequest,
   createTransientLaunchEnvelope,
+  createConstructionVisualBundle,
+  augmentVisualSnapshotWithConstructionHand,
   snapshot
 });

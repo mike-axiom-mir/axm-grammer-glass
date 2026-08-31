@@ -55,6 +55,12 @@ The shared Discovery Kiln organ provides the full source-side route for an autho
 
 The local ledger uses browser storage when available and degrades to session-only memory if device storage is unavailable. It performs no cloud sync. Its labels are deliberately limited to `NEW TO THIS LEDGER`, `SEEN IN THIS LEDGER`, and `TESTED IN THIS LEDGER`; none is a novelty or quality judgment.
 
+### Construction Hand — exact first-roll source lane
+
+The generated snapshot includes one source-free construction bundle bound to the deterministic first **ROLL 5** combination. After **PREPARE CANDIDATE**, the viewer exposes a four-part explicit sequence: **BUILD SOURCE → ARM SOURCE → RUN SOURCE ONCE → RELEASE SOURCE**. Build replays the shared renderer and exposes bytes only when the artifact, file, byte-length, static-verification and run-request digests all match. Its source preview uses text content and does not execute.
+
+Arm replaces the isolated `sandbox="allow-scripts"` iframe with a placeholder; it does not load the candidate. Run loads the exact transient `srcdoc` once. A terminal receipt requires exact plan and adapter lineage plus an opaque (`null`) origin. A PASS reports only the candidate's bounded runtime invariant. It is not a correctness, quality, novelty, admission, promotion or canon result. A different roll or manually chosen combination cannot borrow the precomputed bundle and remains at `HELD · ADAPTER`.
+
 ## Phase 2 — Double Glass / Interglass Sandbox
 
 Phase 2 adds a visible execution lane without turning the Grammar Glass metadata modules into a fake OS sandbox.

@@ -12,7 +12,11 @@
     "EXACT_UTF8_SOURCE_ARTIFACT",
     "STATIC_SYNTAX_SHAPE_AND_CONTAINMENT_VERIFICATION",
     "DIGEST_ONLY_SANDBOX_REQUEST",
-    "SEPARATE_TRANSIENT_LAUNCH_ENVELOPE"
+    "SEPARATE_TRANSIENT_LAUNCH_ENVELOPE",
+    "EXACT_BROWSER_RENDERER_REPLAY",
+    "EXPLICIT_ARM_AND_ONE_RUN",
+    "DIGEST_BOUND_RUNTIME_RECEIPT",
+    "TRANSIENT_SOURCE_RELEASE"
   ],
   "adapter": {
     "schema": "axm.code.grammar-glass-construction-adapter.v1",
@@ -64,6 +68,24 @@
     "explicitArmRequired": true,
     "maximumAttempts": 1
   },
+  "viewerExecution": {
+    "visualBundleSchema": "axm.code.grammar-glass-construction-visual-bundle.v1",
+    "visualBundleStoresSourceText": false,
+    "browserReplaySchema": "axm.code.grammar-glass-browser-construction-replay.v1",
+    "runtimeReceiptSchema": "axm.code.grammar-glass-construction-browser-runtime-receipt.v1",
+    "exactCombinationRequired": true,
+    "sourcePreviewExecutes": false,
+    "opaqueOriginRequiredForPass": true,
+    "maximumAttempts": 1,
+    "terminalResults": [
+      "PASS_OBSERVED",
+      "FAIL_OBSERVED",
+      "CRASH_OBSERVED",
+      "TIMEOUT_OBSERVED"
+    ],
+    "passMeansBoundedRuntimeInvariantOnly": true,
+    "explicitReleaseSupported": true
+  },
   "truth": {
     "genuineBoundedSourceBytesConstructed": true,
     "arbitraryUnboundedSourceGenerationImplemented": false,
@@ -78,7 +100,8 @@
     "canonAuthority": false
   },
   "verification": {
-    "selftest": "selftest-code-grammar-glass-construction-hand.js"
+    "selftest": "selftest-code-grammar-glass-construction-hand.js",
+    "viewerSelftest": "../../../tools/grammar-glass/selftest-construction-hand-viewer.js"
   },
   "authority": "NONE"
 }

@@ -103,6 +103,20 @@ const de = (actual, expected, message) => { assert.deepEqual(actual, expected, m
   eq(launchEnvelope.lifecycle.explicitArmRequired, true, 'explicit arm preserved');
   eq(launchEnvelope.truth.envelopeIsNotExecution, true, 'launch envelope remains unexecuted');
 
+  const visualBundle = hand.createConstructionVisualBundle({ kilnCandidate, plan, adapter, direction, executorProfile });
+  eq(visualBundle.result, 'CONSTRUCTION_VISUAL_BUNDLE_READY_NO_SOURCE_BYTES', 'viewer bundle prepared from exact verified source lineage');
+  eq(visualBundle.combinationIdentitySha256, probe.exploration.combinationIdentitySha256, 'viewer bundle exact combination bound');
+  eq(visualBundle.expectedArtifact.artifactSha256, artifact.artifactSha256, 'viewer bundle carries expected artifact digest');
+  eq(visualBundle.runRequest.result, 'CONSTRUCTION_SANDBOX_REQUEST_READY_NOT_EXECUTED', 'viewer bundle carries its exact unexecuted sandbox request');
+  eq(JSON.stringify(visualBundle).includes('<!doctype html>'), false, 'viewer bundle excludes source text');
+  const augmentedVisual = hand.augmentVisualSnapshotWithConstructionHand({ visualSnapshot: visual, bundles: [visualBundle] });
+  eq(augmentedVisual.constructionHand.result, 'CONSTRUCTION_HAND_EXACT_PLANS_AVAILABLE', 'visual snapshot exposes exact construction plan');
+  eq(augmentedVisual.constructionHand.bundleCount, 1, 'one exact construction bundle exposed');
+  eq(augmentedVisual.constructionHand.bundles[0].constructionBundleSha256, visualBundle.constructionBundleSha256, 'visual bundle retained exactly');
+  eq(augmentedVisual.truth.constructionSourceStoredInSnapshot, false, 'visual snapshot remains source-free');
+  eq(augmentedVisual.truth.constructionExecutionOccurred, false, 'visual augmentation does not execute');
+  ok(glass.digestCurrent(augmentedVisual, 'visualSnapshotSha256'), 'augmented visual snapshot digest current');
+
   const unknownCore = JSON.parse(JSON.stringify(kilnCandidate));
   delete unknownCore.discoveryKilnCandidateSha256;
   unknownCore.groundedAtomRefs[0].atomType = 'UNKNOWN_ATOM';

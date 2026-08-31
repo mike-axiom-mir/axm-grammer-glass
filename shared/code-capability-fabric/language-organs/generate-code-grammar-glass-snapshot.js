@@ -1,6 +1,7 @@
 'use strict';
 
 const glass = require('./code-grammar-glass.js');
+const playground = require('../../../tools/grammar-glass/playground-core.js');
 
 function argument(name, fallback = null) {
   const flag = `--${name}`;
@@ -139,9 +140,45 @@ function main() {
     dayStart,
     interglassPolicySha256: interglassPolicy.policySha256
   });
-  const visual = glass.augmentVisualSnapshotWithExecutionHistory({
+  let visual = glass.augmentVisualSnapshotWithExecutionHistory({
     visualSnapshot: doubleGlassVisual,
     executionHistory
+  });
+  const constructionLanguages = playground.rollLanguages(visual, { count: 5, roll: 1 });
+  const constructionProbe = playground.createProbe(visual, {
+    languageIds: constructionLanguages,
+    mode: 'GRAVITY_WELL',
+    strength: 0.72,
+    roll: 1
+  });
+  const constructionCandidate = glass.createDiscoveryKilnCandidate({
+    probe: constructionProbe,
+    cycle,
+    catalog,
+    conditionRevision: conditions,
+    dayStart,
+    contactMemory,
+    appliedMemoryCarries: memoryStep && memoryStep.appliedMemoryCarries || [],
+    projectId: 'grammar-glass'
+  });
+  const constructionAdapter = glass.createWebMicroAppConstructionAdapter();
+  const constructionDirection = glass.createConstructionDirection({ projectId: 'grammar-glass' });
+  const constructionPlan = glass.createConstructionPlan({
+    kilnCandidate: constructionCandidate,
+    adapter: constructionAdapter,
+    direction: constructionDirection
+  });
+  const constructionExecutor = glass.createBrowserSandboxExecutorProfile({ policy: interglassPolicy });
+  const constructionBundle = glass.createConstructionVisualBundle({
+    kilnCandidate: constructionCandidate,
+    plan: constructionPlan,
+    adapter: constructionAdapter,
+    direction: constructionDirection,
+    executorProfile: constructionExecutor
+  });
+  visual = glass.augmentVisualSnapshotWithConstructionHand({
+    visualSnapshot: visual,
+    bundles: constructionBundle.result === 'CONSTRUCTION_VISUAL_BUNDLE_READY_NO_SOURCE_BYTES' ? [constructionBundle] : []
   });
   process.stdout.write(`${JSON.stringify(visual, null, 2)}\n`);
 }
