@@ -132,3 +132,44 @@ Focused verification:
 Live visual verification remains **UNKNOWN** by agreement for this pass; it can be
 performed later from a local browser or a temporarily hosted copy. No visual PASS
 is claimed.
+
+## Improvement 4 — Construction Hand v1
+
+The Kiln previously reached an inert production packet and a structured
+Interglass lineage crystal, but it still did not produce application source.
+Construction Hand adds the first explicit bounded renderer rather than assigning
+source-rendering ability to the existing intent-only language keyboards or
+templates.
+
+The adapter binds the current HTML, JavaScript and CSS organ, grammar profile,
+keyboard, template and cheatcode digests. For one exact Kiln candidate it maps
+every grounded universal atom to a named structural role and shared deterministic
+seed contribution. This is a structural analogy only; it does not claim that a
+Python, Rust, SQL or other source-language atom is semantically translated into
+browser code.
+
+One plan renders one self-contained offline `index.html` with a seeded interactive
+lineage signal, atom chips, state transition, threshold condition, visible effect,
+failure surface and local invariant. Exact candidate + direction + adapter inputs
+reproduce exact UTF-8 source and artifact digests. An unknown atom role returns
+`HELD_CONSTRUCTION_RULE_REQUIRED`.
+
+The static verifier checks exact renderer replay, file digest and byte length,
+bounded HTML/CSS structure, JavaScript syntax without execution, lineage metadata,
+the default-deny CSP, external-resource absence and unsafe runtime API absence.
+A pass can prepare a digest-only request for the existing disposable Interglass
+browser profile. Exact source lives only in a separate transient launch envelope;
+an explicit arm and external runtime observation are still required.
+
+Focused verification:
+
+- Construction Hand shared organ: 61 assertions
+- exact replay and changed-direction divergence covered
+- every selected atom has a lineage and influence receipt
+- current but renderer-divergent tampering fails closed
+- missing construction rule, failed static verification and missing executor all
+  produce named holds
+- full inherited `npm test`: PASS
+
+Live browser execution and visual verification remain **UNKNOWN** for this pass.
+No runtime-correctness or visual-quality PASS is claimed.

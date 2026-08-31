@@ -1,0 +1,84 @@
+{
+  "schema": "axm.code.grammar-glass-construction-hand-contract.v1",
+  "version": "1.0.0",
+  "status": "TEST",
+  "purpose": "Convert an exact grounded Discovery Kiln candidate into deterministic self-contained HTML, CSS and JavaScript candidate bytes through an explicit bounded renderer, then prepare digest-bound static-verification and sandbox receipts without automatic execution or promotion.",
+  "flow": [
+    "RECORDED_SEEDED_COMBINATION",
+    "GROUNDED_UNIVERSAL_ATOMS",
+    "DRAFT_STAR_AND_INERT_CANDIDATE_PACKET",
+    "EXPLICIT_CONSTRUCTION_DIRECTION",
+    "CONSTRUCTION_PLAN",
+    "EXACT_UTF8_SOURCE_ARTIFACT",
+    "STATIC_SYNTAX_SHAPE_AND_CONTAINMENT_VERIFICATION",
+    "DIGEST_ONLY_SANDBOX_REQUEST",
+    "SEPARATE_TRANSIENT_LAUNCH_ENVELOPE"
+  ],
+  "adapter": {
+    "schema": "axm.code.grammar-glass-construction-adapter.v1",
+    "id": "axm.web-microapp-construction-adapter.v1",
+    "outputTarget": "SELF_CONTAINED_OFFLINE_HTML_MICRO_APP",
+    "boundLanguageBanks": [
+      "html",
+      "javascript",
+      "css"
+    ],
+    "machineKeyboardAndTemplatesRemainIntentOnly": true,
+    "sourceRendererIsSeparateAndExplicit": true,
+    "externalLibraries": false,
+    "network": false,
+    "persistentStorage": false,
+    "dynamicCodeEvaluation": false,
+    "maximumArtifactBytes": 1000000
+  },
+  "construction": {
+    "input": "axm.code.grammar-glass-discovery-kiln-candidate.v1",
+    "direction": "axm.code.grammar-glass-construction-direction.v1",
+    "plan": "axm.code.grammar-glass-construction-plan.v1",
+    "artifact": "axm.code.grammar-glass-constructed-artifact.v1",
+    "everyGroundedAtomGetsInfluenceReceipt": true,
+    "sameCandidateDirectionAndAdapterProduceIdenticalBytes": true,
+    "unsupportedAtomTypeResult": "HELD_CONSTRUCTION_RULE_REQUIRED",
+    "structuralAnalogyIsSemanticEquivalence": false
+  },
+  "staticVerification": {
+    "schema": "axm.code.grammar-glass-construction-static-verification.v1",
+    "exactRendererReplay": true,
+    "fileDigestAndByteLength": true,
+    "htmlDocumentShape": true,
+    "cssBlockBalance": true,
+    "javascriptSyntaxParseWithoutExecution": true,
+    "lineageMetadataBinding": true,
+    "defaultDenyContentSecurityPolicy": true,
+    "externalResourceAndUnsafeApiScan": true,
+    "runtimeCorrectnessClaimed": false
+  },
+  "sandboxPreparation": {
+    "runRequestSchema": "axm.code.grammar-glass-construction-run-request.v1",
+    "launchEnvelopeSchema": "axm.code.grammar-glass-construction-launch-envelope.v1",
+    "executorProfile": "axm.code.interglass-browser-sandbox-executor-profile.v1",
+    "missingExecutorResult": "HELD_CONSTRUCTION_EXECUTOR_REQUIRED",
+    "readyResult": "CONSTRUCTION_SANDBOX_REQUEST_READY_NOT_EXECUTED",
+    "sourceTextStoredInRunRequest": false,
+    "sourceTextSuppliedBySeparateTransientEnvelope": true,
+    "explicitArmRequired": true,
+    "maximumAttempts": 1
+  },
+  "truth": {
+    "genuineBoundedSourceBytesConstructed": true,
+    "arbitraryUnboundedSourceGenerationImplemented": false,
+    "rngProvesNovelty": false,
+    "constructionProvesCorrectnessOrQuality": false,
+    "staticVerificationIsRuntimeExecution": false,
+    "browserSandboxIsOsSandbox": false,
+    "automaticExecution": false,
+    "automaticReentry": false,
+    "automaticSelection": false,
+    "automaticPromotion": false,
+    "canonAuthority": false
+  },
+  "verification": {
+    "selftest": "selftest-code-grammar-glass-construction-hand.js"
+  },
+  "authority": "NONE"
+}
