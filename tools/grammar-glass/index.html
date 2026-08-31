@@ -155,7 +155,7 @@
             <button id="kilnRun" disabled>RUN RECORDED ONCE</button>
           </div>
           <section class="construction-hand" aria-labelledby="constructionTitle">
-            <div class="construction-head"><div><span>EXACT PLAN → TRANSIENT SOURCE → ISOLATED RUN</span><h4 id="constructionTitle">CONSTRUCTION HAND</h4></div><b id="constructionStatus" aria-live="polite">WAITING</b></div>
+            <div class="construction-head"><div><span>BOUNDED RNG FIELD → EXACT PLAN → TRANSIENT SOURCE → ISOLATED RUN</span><h4 id="constructionTitle">CONSTRUCTION HAND</h4></div><b id="constructionStatus" aria-live="polite">WAITING</b></div>
             <div class="kiln-readout construction-readout" id="constructionReadout"><span>CONSTRUCTION HAND</span><b>WAITING FOR PREPARATION</b><small>Roll, then prepare the exact combination.</small></div>
             <div class="construction-actions">
               <button id="constructionBuild" disabled>1 · BUILD SOURCE</button>
@@ -168,7 +168,7 @@
               <div><small>SOURCE PREVIEW · TEXT ONLY · NOT EXECUTED</small><pre id="constructionSourcePreview">No source built. Exact source bytes appear here only after BUILD SOURCE.</pre></div>
             </div>
           </section>
-          <div class="kiln-truth">Preparation records exact combination and lineage digests. One precomputed, exact first-roll plan can construct deterministic source in this session; unmatched RNG combinations still stop at <b>HELD · ADAPTER</b>. Build, arm and run are separate explicit actions, one attempt only. A PASS is a bounded runtime invariant—not quality, correctness, selection, promotion or canon. “New here” means only new to this local ledger.</div>
+          <div class="kiln-truth">Preparation records exact combination and lineage digests. A bounded field of precomputed RNG rolls can construct different deterministic sources in this session; manual or out-of-field combinations still stop at <b>HELD · ADAPTER</b>. Build, arm and run are separate explicit actions, one attempt only. A PASS is a bounded runtime invariant—not quality, correctness, novelty, selection, promotion or canon. “New here” means only new to this local ledger.</div>
         </div>
 
         <div class="instrument-grid">

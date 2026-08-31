@@ -16,6 +16,7 @@
 
   function validBundle(bundle) {
     if (!bundle || bundle.schema !== 'axm.code.grammar-glass-construction-visual-bundle.v1' || bundle.result !== 'CONSTRUCTION_VISUAL_BUNDLE_READY_NO_SOURCE_BYTES' || !digestCurrent(bundle, 'constructionBundleSha256')) return false;
+    if (!Number.isSafeInteger(bundle.roll) || bundle.roll < 0 || !Playground.MODES.includes(bundle.probeMode) || !Number.isFinite(bundle.probeStrength) || bundle.probeStrength < 0 || bundle.probeStrength > 1) return false;
     if (!bundle.adapter || !digestCurrent(bundle.adapter, 'adapterSha256') || bundle.adapterSha256 !== bundle.adapter.adapterSha256) return false;
     if (!bundle.direction || !digestCurrent(bundle.direction, 'directionSha256') || bundle.directionSha256 !== bundle.direction.directionSha256) return false;
     if (!bundle.plan || !digestCurrent(bundle.plan, 'constructionPlanSha256') || bundle.constructionPlanSha256 !== bundle.plan.constructionPlanSha256) return false;
@@ -27,6 +28,28 @@
     return bundle.truth?.sourceTextStoredInBundle === false && !JSON.stringify(bundle).includes('<!doctype html>');
   }
 
+  function validField(snapshot) {
+    if (!Playground.validSnapshot(snapshot)) return false;
+    const state = snapshot.constructionHand, coverage = state?.coverage, bundles = state?.bundles;
+    if (!state || state.schema !== 'axm.code.grammar-glass-construction-hand-visual-state.v1' || !digestCurrent(state, 'visualStateSha256') || !Array.isArray(bundles)) return false;
+    if (!coverage || coverage.schema !== 'axm.code.grammar-glass-construction-field-coverage.v1' || !digestCurrent(coverage, 'coverageSha256')) return false;
+    const rolls = bundles.map(bundle => bundle.roll).sort((a, b) => a - b);
+    const requestedRolls = coverage.requestedRolls, heldRolls = coverage.heldRolls;
+    return bundles.every(validBundle) &&
+      state.bundleCount === bundles.length && coverage.bundleCount === bundles.length &&
+      Array.isArray(requestedRolls) && Array.isArray(heldRolls) && Array.isArray(coverage.attempts) &&
+      coverage.requestedRollCount === requestedRolls.length && coverage.heldRollCount === heldRolls.length &&
+      coverage.attempts.length === requestedRolls.length && new Set(requestedRolls).size === requestedRolls.length &&
+      JSON.stringify(coverage.coveredRolls) === JSON.stringify(rolls) &&
+      JSON.stringify(heldRolls) === JSON.stringify(requestedRolls.filter(roll => !rolls.includes(roll))) &&
+      coverage.minimumCoveredRoll === (rolls.length ? rolls[0] : null) &&
+      coverage.maximumCoveredRoll === (rolls.length ? rolls[rolls.length - 1] : null) &&
+      coverage.distinctLanguageSetCount === new Set(bundles.map(bundle => [...bundle.languageIds].sort().join('|'))).size &&
+      coverage.distinctConstructionPlanCount === new Set(bundles.map(bundle => bundle.constructionPlanSha256)).size &&
+      coverage.distinctArtifactCount === new Set(bundles.map(bundle => bundle.expectedArtifact.artifactSha256)).size &&
+      coverage.sourceTextStoredInCoverage === false;
+  }
+
   function findBundle(snapshot, probe) {
     if (!Playground.validSnapshot(snapshot) || !probe || !probe.exploration?.combinationIdentitySha256) return null;
     const bundles = snapshot.constructionHand?.bundles || [];
@@ -34,8 +57,34 @@
       validBundle(bundle) &&
       bundle.combinationIdentitySha256 === probe.exploration.combinationIdentitySha256 &&
       bundle.probeSha256 === probe.probeSha256 &&
+      bundle.roll === probe.roll && bundle.probeMode === probe.mode && bundle.probeStrength === probe.strength &&
       JSON.stringify(bundle.languageIds) === JSON.stringify(probe.languageIds)
     ) || null;
+  }
+
+  function fieldStatus(snapshot, probe = null) {
+    if (!validField(snapshot)) return freeze({ result: 'VALID_CONSTRUCTION_FIELD_REQUIRED', bundleCount: 0, coveredRolls: [], exactPlanAvailable: false, authority: 'NONE' });
+    const coverage = snapshot.constructionHand.coverage, exact = probe ? findBundle(snapshot, probe) : null;
+    return freeze({
+      schema: 'axm.code.grammar-glass-browser-construction-field-status.v1',
+      result: exact ? 'EXACT_CONSTRUCTION_FIELD_PLAN_AVAILABLE' : probe ? 'CURRENT_PROBE_OUTSIDE_CONSTRUCTION_FIELD' : 'CONSTRUCTION_FIELD_READY_WAITING_FOR_PROBE',
+      bundleCount: coverage.bundleCount,
+      requestedRollCount: coverage.requestedRollCount,
+      requestedRolls: [...coverage.requestedRolls],
+      coveredRolls: [...coverage.coveredRolls],
+      heldRollCount: coverage.heldRollCount,
+      heldRolls: [...coverage.heldRolls],
+      minimumCoveredRoll: coverage.minimumCoveredRoll,
+      maximumCoveredRoll: coverage.maximumCoveredRoll,
+      distinctLanguageSetCount: coverage.distinctLanguageSetCount,
+      distinctConstructionPlanCount: coverage.distinctConstructionPlanCount,
+      distinctArtifactCount: coverage.distinctArtifactCount,
+      currentRoll: probe?.roll ?? null,
+      exactPlanAvailable: !!exact,
+      exactConstructionPlanSha256: exact?.constructionPlanSha256 || null,
+      truth: { coverageIsNotNoveltyOrQualityRanking: true, uncoveredProbeMustHold: !!probe && !exact, executionOccurred: false },
+      authority: 'NONE'
+    });
   }
 
   function artifactFromSource(bundle, utf8Text) {
@@ -159,5 +208,5 @@
     });
   }
 
-  return Object.freeze({ canon, sha256, digestCurrent, validBundle, findBundle, artifactFromSource, build });
+  return Object.freeze({ canon, sha256, digestCurrent, validBundle, validField, findBundle, fieldStatus, artifactFromSource, build });
 });

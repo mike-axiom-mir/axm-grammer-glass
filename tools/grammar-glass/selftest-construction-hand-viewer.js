@@ -44,11 +44,42 @@ const plan = hand.createConstructionPlan({ kilnCandidate: candidate, adapter, di
 const policy = glass.createInterglassPolicy({ persistenceIntent: 'TRANSIENT', maxAttempts: 1 });
 const profile = glass.createBrowserSandboxExecutorProfile({ policy });
 const bundle = hand.createConstructionVisualBundle({ kilnCandidate: candidate, plan, adapter, direction, executorProfile: profile });
-const visual = hand.augmentVisualSnapshotWithConstructionHand({ visualSnapshot: visualBase, bundles: [bundle] });
+function bundleForRoll(roll) {
+  const ids = playground.rollLanguages(visualBase, { count: 5, roll });
+  const fieldProbe = playground.createProbe(visualBase, { languageIds: ids, mode: 'GRAVITY_WELL', strength: 0.72, roll });
+  const fieldCandidate = glass.createDiscoveryKilnCandidate({ probe: fieldProbe, cycle, catalog, conditionRevision: condition, dayStart: day });
+  const fieldPlan = hand.createConstructionPlan({ kilnCandidate: fieldCandidate, adapter, direction });
+  return hand.createConstructionVisualBundle({ kilnCandidate: fieldCandidate, plan: fieldPlan, adapter, direction, executorProfile: profile });
+}
+const bundles = [bundle, bundleForRoll(2), bundleForRoll(3), bundleForRoll(4)];
+const visual = hand.augmentVisualSnapshotWithConstructionHand({ visualSnapshot: visualBase, bundles });
 
 ok(browserHand.validBundle(bundle), 'exact source-free visual bundle validates in browser core');
+ok(browserHand.validField(visual), 'bounded multi-roll construction field validates');
+eq(visual.constructionHand.coverage.bundleCount, 4, 'four exact rolls recorded in fixture field');
+assert.deepEqual(visual.constructionHand.coverage.coveredRolls, [1, 2, 3, 4], 'covered rolls retained in order'); n += 1;
+eq(visual.constructionHand.coverage.distinctConstructionPlanCount, 4, 'every covered roll has a distinct plan');
+eq(visual.constructionHand.coverage.distinctArtifactCount, 4, 'every covered roll has distinct source bytes');
+ok(visual.constructionHand.coverage.distinctLanguageSetCount >= 2, 'field explores multiple language sets');
+eq(browserHand.fieldStatus(visual).result, 'CONSTRUCTION_FIELD_READY_WAITING_FOR_PROBE', 'field waits without selecting a plan');
+eq(browserHand.fieldStatus(visual, probe).result, 'EXACT_CONSTRUCTION_FIELD_PLAN_AVAILABLE', 'field status reports exact current plan');
 eq(browserHand.findBundle(visual, probe).constructionBundleSha256, bundle.constructionBundleSha256, 'exact probe finds exact bundle');
 eq(JSON.stringify(visual).includes('<!doctype html>'), false, 'visual snapshot stores no generated source bytes');
+const replayVisual = hand.augmentVisualSnapshotWithConstructionHand({ visualSnapshot: visualBase, bundles });
+eq(replayVisual.constructionHand.coverage.coverageSha256, visual.constructionHand.coverage.coverageSha256, 'same field inputs replay exact coverage digest');
+eq(replayVisual.visualSnapshotSha256, visual.visualSnapshotSha256, 'same field inputs replay exact visual snapshot');
+const partialVisual = hand.augmentVisualSnapshotWithConstructionHand({
+  visualSnapshot: visualBase,
+  bundles: [bundle],
+  fieldAttempts: [
+    { roll: 1, candidateResult: candidate.result, planResult: plan.result, bundleResult: bundle.result },
+    { roll: 9, candidateResult: 'HELD_ADAPTER_REQUIRED', planResult: 'HELD_CONSTRUCTION_RULE_REQUIRED', bundleResult: 'CONSTRUCTION_VISUAL_BUNDLE_PREPARATION_HELD' }
+  ]
+});
+eq(partialVisual.constructionHand.coverage.result, 'BOUNDED_CONSTRUCTION_FIELD_PARTIAL_WITH_RECORDED_HOLDS', 'partial field names recorded holds');
+assert.deepEqual(partialVisual.constructionHand.coverage.requestedRolls, [1, 9], 'partial field records requested rolls'); n += 1;
+assert.deepEqual(partialVisual.constructionHand.coverage.heldRolls, [9], 'partial field records exact held roll'); n += 1;
+ok(browserHand.validField(partialVisual), 'partial field with explicit hold validates');
 const preparation = kiln.createPreparation({ snapshot: visual, probe, ledger: kiln.emptyLedger(visual) });
 eq(preparation.result, 'DISCOVERY_PREPARATION_BOUND_TO_CONSTRUCTION_PLAN', 'Kiln binds exact precomputed construction plan');
 eq(preparation.construction.constructionPlanSha256, plan.constructionPlanSha256, 'preparation retains exact plan digest');
@@ -142,15 +173,31 @@ eq(summary.testCount, 1, 'construction test counted exactly once');
 eq(summary.resultHistory[0].constructionPlanSha256, plan.constructionPlanSha256, 'ledger history binds plan digest');
 assert.throws(() => kiln.recordConstructionReceipt(ledger, { preparation, receipt: { ...passReceipt, artifactSha256: 'wrong' } }), /LINEAGE_MISMATCH/); n += 1;
 
-const unmatchedProbe = playground.createProbe(visual, { languageIds, mode: 'GRAVITY_WELL', strength: 0.72, roll: 2 });
-eq(browserHand.findBundle(visual, unmatchedProbe), null, 'different RNG roll cannot reuse exact bundle');
+for (let roll = 1; roll <= 4; roll += 1) {
+  const rolledIds = playground.rollLanguages(visual, { count: 5, roll });
+  const rolledProbe = playground.createProbe(visual, { languageIds: rolledIds, mode: 'GRAVITY_WELL', strength: 0.72, roll });
+  const rolledBundle = browserHand.findBundle(visual, rolledProbe);
+  ok(rolledBundle, `covered roll ${roll} resolves exact bundle`);
+  eq(browserHand.build(rolledBundle).artifact.artifactSha256, rolledBundle.expectedArtifact.artifactSha256, `covered roll ${roll} rebuilds exact artifact`);
+}
+const unmatchedIds = playground.rollLanguages(visual, { count: 5, roll: 5 });
+const unmatchedProbe = playground.createProbe(visual, { languageIds: unmatchedIds, mode: 'GRAVITY_WELL', strength: 0.72, roll: 5 });
+eq(browserHand.findBundle(visual, unmatchedProbe), null, 'out-of-field RNG roll cannot reuse an exact bundle');
+eq(browserHand.fieldStatus(visual, unmatchedProbe).result, 'CURRENT_PROBE_OUTSIDE_CONSTRUCTION_FIELD', 'field names out-of-field probe');
 eq(kiln.createPreparation({ snapshot: visual, probe: unmatchedProbe, ledger: kiln.emptyLedger(visual) }).result, 'HELD_ADAPTER_REQUIRED', 'unmatched combination remains visibly held');
+const alteredModeProbe = playground.createProbe(visual, { languageIds, mode: 'RIFT_SCAN', strength: 0.72, roll: 1 });
+eq(browserHand.findBundle(visual, alteredModeProbe), null, 'covered roll with changed probe mode cannot borrow plan');
+const duplicateRollState = hand.augmentVisualSnapshotWithConstructionHand({ visualSnapshot: visualBase, bundles: [bundle, bundle] });
+eq(duplicateRollState.result, 'VALID_UNIQUE_CONSTRUCTION_VISUAL_BUNDLES_REQUIRED', 'duplicate field roll fails closed');
+const invalidAttemptState = hand.augmentVisualSnapshotWithConstructionHand({ visualSnapshot: visualBase, bundles: [], fieldAttempts: [{ roll: 'not-a-roll' }] });
+eq(invalidAttemptState.result, 'VALID_UNIQUE_CONSTRUCTION_FIELD_ATTEMPTS_REQUIRED', 'invalid requested roll fails closed');
 
 process.stdout.write(JSON.stringify({
   result: 'GRAMMAR_GLASS_CONSTRUCTION_HAND_VIEWER_SELFTEST_PASS',
   assertions: n,
   constructionPlanSha256: plan.constructionPlanSha256,
   artifactSha256: build.artifact.artifactSha256,
+  coverageSha256: visual.constructionHand.coverage.coverageSha256,
   runtimeReceiptSha256: passReceipt.runtimeReceiptSha256,
   ledgerSha256: ledger.ledgerSha256
 }, null, 2) + '\n');

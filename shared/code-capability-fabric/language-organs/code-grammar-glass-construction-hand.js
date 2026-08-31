@@ -701,6 +701,9 @@ function createConstructionVisualBundle({
     result: 'CONSTRUCTION_VISUAL_BUNDLE_READY_NO_SOURCE_BYTES',
     combinationIdentitySha256: kilnCandidate.combinationIdentitySha256,
     probeSha256: kilnCandidate.probeSha256,
+    roll: kilnCandidate.roll,
+    probeMode: kilnCandidate.probeMode,
+    probeStrength: kilnCandidate.probeStrength,
     languageIds: [...kilnCandidate.languageIds],
     groundedAtomRefs: kilnCandidate.groundedAtomRefs.map(atom => ({ ...atom })),
     discoveryKilnCandidateSha256: kilnCandidate.discoveryKilnCandidateSha256,
@@ -740,7 +743,7 @@ function createConstructionVisualBundle({
   return deepFreeze({ ...core, constructionBundleSha256: hash(core) });
 }
 
-function augmentVisualSnapshotWithConstructionHand({ visualSnapshot, bundles = [] } = {}) {
+function augmentVisualSnapshotWithConstructionHand({ visualSnapshot, bundles = [], fieldAttempts = null } = {}) {
   if (!visualSnapshot || visualSnapshot.schema !== 'axm.code.grammar-glass-visual-snapshot.v1' || !digestCurrent(visualSnapshot, 'visualSnapshotSha256')) {
     return deepFreeze({ schema: 'axm.code.grammar-glass-visual-snapshot.v1', result: 'VALID_VISUAL_SNAPSHOT_REQUIRED_FOR_CONSTRUCTION_HAND', authority: 'NONE' });
   }
@@ -749,16 +752,64 @@ function augmentVisualSnapshotWithConstructionHand({ visualSnapshot, bundles = [
     !bundle ||
     bundle.schema !== 'axm.code.grammar-glass-construction-visual-bundle.v1' ||
     bundle.result !== 'CONSTRUCTION_VISUAL_BUNDLE_READY_NO_SOURCE_BYTES' ||
+    !Number.isSafeInteger(bundle.roll) || bundle.roll < 0 ||
     !digestCurrent(bundle, 'constructionBundleSha256')
   );
-  if (invalid.length || new Set(items.map(bundle => bundle.combinationIdentitySha256)).size !== items.length) {
+  if (invalid.length || new Set(items.map(bundle => bundle.combinationIdentitySha256)).size !== items.length || new Set(items.map(bundle => bundle.roll)).size !== items.length) {
     return deepFreeze({ schema: 'axm.code.grammar-glass-visual-snapshot.v1', result: 'VALID_UNIQUE_CONSTRUCTION_VISUAL_BUNDLES_REQUIRED', invalidCount: invalid.length, authority: 'NONE' });
   }
+  const coveredRolls = items.map(bundle => bundle.roll).filter(Number.isSafeInteger).sort((a, b) => a - b);
+  const rawAttempts = Array.isArray(fieldAttempts) ? fieldAttempts : coveredRolls.map(roll => ({ roll }));
+  if (rawAttempts.some(attempt => !attempt || !Number.isSafeInteger(attempt.roll) || attempt.roll < 0)) {
+    return deepFreeze({ schema: 'axm.code.grammar-glass-visual-snapshot.v1', result: 'VALID_UNIQUE_CONSTRUCTION_FIELD_ATTEMPTS_REQUIRED', authority: 'NONE' });
+  }
+  const attempts = rawAttempts.map(attempt => ({
+    roll: attempt.roll,
+    candidateResult: cleanId(attempt.candidateResult, 'NOT_RECORDED'),
+    planResult: cleanId(attempt.planResult, 'NOT_RECORDED'),
+    bundleResult: cleanId(attempt.bundleResult, coveredRolls.includes(attempt.roll) ? 'CONSTRUCTION_VISUAL_BUNDLE_READY_NO_SOURCE_BYTES' : 'NOT_RECORDED')
+  })).sort((a, b) => a.roll - b.roll);
+  const requestedRolls = [...new Set(attempts.map(attempt => attempt.roll))];
+  if (requestedRolls.length !== attempts.length || coveredRolls.some(roll => !requestedRolls.includes(roll))) {
+    return deepFreeze({ schema: 'axm.code.grammar-glass-visual-snapshot.v1', result: 'VALID_UNIQUE_CONSTRUCTION_FIELD_ATTEMPTS_REQUIRED', authority: 'NONE' });
+  }
+  const heldRolls = requestedRolls.filter(roll => !coveredRolls.includes(roll));
+  const distinctLanguageSets = new Set(items.map(bundle => [...bundle.languageIds].sort().join('|'))).size;
+  const distinctPlans = new Set(items.map(bundle => bundle.constructionPlanSha256)).size;
+  const distinctArtifacts = new Set(items.map(bundle => bundle.expectedArtifact.artifactSha256)).size;
+  const coverageCore = {
+    schema: 'axm.code.grammar-glass-construction-field-coverage.v1',
+    version: '1.0.0',
+    result: heldRolls.length ? 'BOUNDED_CONSTRUCTION_FIELD_PARTIAL_WITH_RECORDED_HOLDS' : items.length ? 'BOUNDED_CONSTRUCTION_FIELD_READY' : 'CONSTRUCTION_FIELD_EMPTY',
+    requestedRollCount: requestedRolls.length,
+    requestedRolls,
+    bundleCount: items.length,
+    coveredRolls,
+    heldRollCount: heldRolls.length,
+    heldRolls,
+    attempts,
+    minimumCoveredRoll: coveredRolls.length ? coveredRolls[0] : null,
+    maximumCoveredRoll: coveredRolls.length ? coveredRolls[coveredRolls.length - 1] : null,
+    distinctLanguageSetCount: distinctLanguageSets,
+    distinctConstructionPlanCount: distinctPlans,
+    distinctArtifactCount: distinctArtifacts,
+    sourceTextStoredInCoverage: false,
+    truth: {
+      coverageIsBoundedNotOpenEnded: true,
+      missingRequestedRollsAreRecordedAsHolds: true,
+      coverageIsNotNoveltyOrQualityRanking: true,
+      uncoveredRollsMustHold: true,
+      everyBundleStillRequiresExplicitPreparationBuildArmAndRun: true
+    },
+    authority: 'NONE'
+  };
+  const coverage = { ...coverageCore, coverageSha256: hash(coverageCore) };
   const stateCore = {
     schema: 'axm.code.grammar-glass-construction-hand-visual-state.v1',
     version: '1.0.0',
     result: items.length ? 'CONSTRUCTION_HAND_EXACT_PLANS_AVAILABLE' : 'CONSTRUCTION_HAND_NO_EXACT_PLANS_RECORDED',
     bundleCount: items.length,
+    coverage,
     bundles: items,
     truth: {
       sourceTextStoredInVisualSnapshot: false,

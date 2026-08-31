@@ -229,6 +229,9 @@ function createDiscoveryKilnCandidate({
     result,
     combinationIdentitySha256: probe.exploration.combinationIdentitySha256,
     probeSha256: probe.probeSha256,
+    roll: probe.roll,
+    probeMode: probe.mode,
+    probeStrength: probe.strength,
     sourceBinding: probe.sourceBinding,
     languageIds: [...probe.languageIds],
     groundedAtomRefs: atoms.map(atom => ({

@@ -2,19 +2,20 @@
 const Core=window.AXMGrammarGlassConstructionHandCore,Executor=window.AXMGrammarGlassConstructionExecutor,$=id=>document.getElementById(id);
 if(!Core||!Executor)return;
 let snapshot=null,probe=null,build=null,unsub=null;
-const dbg=window.__GRAMMAR_GLASS_CONSTRUCTION_HAND_STATE__={loaded:true,availability:'WAITING_FOR_EXACT_PLAN',buildState:'EMPTY',executorState:'EMPTY',sourcePreviewed:false,sourcePersisted:false,executionOccurred:false,lastReceiptSha256:null,automaticPromotion:false};
+const dbg=window.__GRAMMAR_GLASS_CONSTRUCTION_HAND_STATE__={loaded:true,availability:'WAITING_FOR_EXACT_PLAN',fieldBundleCount:0,fieldHeldRollCount:0,currentRoll:null,buildState:'EMPTY',executorState:'EMPTY',sourcePreviewed:false,sourcePersisted:false,executionOccurred:false,lastReceiptSha256:null,automaticPromotion:false};
 const short=(value,length=12)=>value?String(value).slice(0,length)+'…':'—';
 function preparation(){return window.AXMGrammarGlassDiscoveryKiln?.getPreparation?.()||null}
 function bundle(){return snapshot&&probe?Core.findBundle(snapshot,probe):null}
 function render(){
- const prep=preparation(),exact=bundle(),state=Executor.snapshot(),status=$('constructionStatus'),readout=$('constructionReadout'),buildButton=$('constructionBuild'),armButton=$('constructionArm'),runButton=$('constructionRun'),releaseButton=$('constructionRelease');
- dbg.availability=exact?'EXACT_PLAN_AVAILABLE':probe?'UNMATCHED_COMBINATION_HELD':'WAITING_FOR_EXACT_PLAN';dbg.buildState=build?.result||'EMPTY';dbg.executorState=state.state;dbg.sourcePreviewed=!!build;dbg.executionOccurred=state.attempts>0;dbg.lastReceiptSha256=state.lastReceipt?.runtimeReceiptSha256||null;
+ const prep=preparation(),exact=bundle(),field=snapshot?Core.fieldStatus(snapshot,probe):null,state=Executor.snapshot(),status=$('constructionStatus'),readout=$('constructionReadout'),buildButton=$('constructionBuild'),armButton=$('constructionArm'),runButton=$('constructionRun'),releaseButton=$('constructionRelease');
+ dbg.availability=exact?'EXACT_PLAN_AVAILABLE':probe?'UNMATCHED_COMBINATION_HELD':'WAITING_FOR_EXACT_PLAN';dbg.fieldBundleCount=field?.bundleCount||0;dbg.fieldHeldRollCount=field?.heldRollCount||0;dbg.currentRoll=probe?.roll??null;dbg.buildState=build?.result||'EMPTY';dbg.executorState=state.state;dbg.sourcePreviewed=!!build;dbg.executionOccurred=state.attempts>0;dbg.lastReceiptSha256=state.lastReceipt?.runtimeReceiptSha256||null;
  if(status)status.textContent=state.terminalState?state.terminalState.replaceAll('_',' '):state.state==='EXECUTION_READY'?'ARMED':build?'SOURCE PREVIEW':exact?'PLAN AVAILABLE':probe?'NO EXACT PLAN':'WAITING';
  if(readout){
   if(state.lastReceipt)readout.innerHTML=`<span>BOUND RECEIPT</span><b>${state.terminalState.replaceAll('_',' ')}</b><small>runtime ${short(state.lastReceipt.runtimeReceiptSha256)} · artifact ${short(state.artifactSha256)}</small>`;
   else if(build)readout.innerHTML=`<span>TRANSIENT SOURCE PREVIEW · NOT EXECUTED</span><b>${build.transientSource.byteLength} UTF-8 bytes</b><small>file ${short(build.transientSource.sha256)} · plan ${short(build.artifact.constructionPlanSha256)}</small>`;
-  else if(exact)readout.innerHTML=`<span>EXACT PLAN AVAILABLE</span><b>${exact.groundedAtomRefs.length} grounded atoms</b><small>plan ${short(exact.constructionPlanSha256)} · source bytes absent until BUILD</small>`;
-  else readout.innerHTML=`<span>${probe?'UNMATCHED RNG COMBINATION':'CONSTRUCTION HAND'}</span><b>${probe?'HELD · NO EXACT PLAN':'WAITING FOR PREPARATION'}</b><small>${probe?'No renderer is guessed for this roll.':'Roll, then prepare the exact combination.'}</small>`;
+  else if(exact)readout.innerHTML=`<span>CONSTRUCTION FIELD · ROLL ${exact.roll}</span><b>${exact.groundedAtomRefs.length} grounded atoms · exact plan available</b><small>${field.bundleCount} rolls · ${field.distinctArtifactCount} distinct artifacts · plan ${short(exact.constructionPlanSha256)}</small>`;
+  else if(probe)readout.innerHTML=`<span>ROLL ${probe.roll} · OUTSIDE EXACT FIELD</span><b>HELD · NO EXACT PLAN</b><small>Recorded field covers rolls ${(field?.coveredRolls||[]).join(', ')||'none'}. No renderer is guessed.</small>`;
+  else readout.innerHTML=`<span>BOUNDED CONSTRUCTION FIELD</span><b>${field?.bundleCount||0} exact plans ready</b><small>${field?.distinctLanguageSetCount||0} language sets · ${field?.distinctArtifactCount||0} distinct artifacts · roll to explore</small>`;
  }
  if(buildButton)buildButton.disabled=prep?.result!=='DISCOVERY_PREPARATION_BOUND_TO_CONSTRUCTION_PLAN'||!exact||!!build;
  if(armButton)armButton.disabled=!build||!['EMPTY','SOURCE_RELEASED'].includes(state.state);

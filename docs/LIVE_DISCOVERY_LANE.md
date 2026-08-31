@@ -208,3 +208,35 @@ Live full-viewer visual verification remains **UNKNOWN**. The connected cloud
 browser rejected the local workspace URL and `data:` pages by policy, while the
 workspace has no local browser executable. The source, state-machine and receipt
 tests above do not substitute for a screenshot or interaction claim.
+
+## Improvement 6 — bounded RNG Construction Field
+
+The viewer bridge could construct only roll 1, which made the RNG path technically
+real but too narrow to explore. Snapshot generation now prepares eight exact rolls
+by default and accepts `--construction-rolls N` with a hard 1–24 ceiling.
+
+Each roll independently records its probe identity, grounded candidate, plan,
+expected artifact digests, static verification and run request. No HTML source is
+stored. The field coverage receipt records requested, covered and held rolls plus
+distinct language-set, plan and artifact counts. If a requested roll cannot form a
+valid bundle, it remains a recorded hold instead of silently vanishing.
+
+The browser validates the complete field receipt before exposing availability.
+An exact match requires roll, probe digest, mode, strength, language order and
+combination identity. Covered rolls rebuild their own exact source bytes; an
+out-of-field roll, changed mode/strength or manual combination stays held. Field
+diversity is descriptive only and does not claim novelty, quality or selection.
+
+Focused verification:
+
+- shared Discovery Kiln organ: 28 assertions
+- shared Construction Hand organ: 80 assertions
+- viewer Construction Field / executor / ledger rail: 62 assertions
+- four-roll focused field produces four distinct plans and artifacts
+- requested-versus-held field accounting, exact replay, out-of-field hold,
+  changed-mode hold and duplicate-roll rejection covered
+- default generated snapshot: eight requested and covered rolls, eight distinct
+  language sets, plans and artifacts, zero stored HTML source bytes
+- full inherited `npm test`: PASS
+
+Live visual verification retains the previous **UNKNOWN** browser boundary.

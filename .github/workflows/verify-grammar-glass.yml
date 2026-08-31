@@ -43,6 +43,13 @@ jobs:
           assert p['executionSky']==[]
           assert p['truth']['executionStarCountIsNotQuality'] is True
           assert p['truth']['executionHistoryDoesNotFeedTwisterAutomatically'] is True
+          assert p['constructionHand']['coverage']['requestedRolls']==list(range(1,9))
+          assert p['constructionHand']['coverage']['coveredRolls']==list(range(1,9))
+          assert p['constructionHand']['coverage']['heldRolls']==[]
+          assert p['constructionHand']['coverage']['distinctConstructionPlanCount']==8
+          assert p['constructionHand']['coverage']['distinctArtifactCount']==8
+          assert p['constructionHand']['truth']['sourceTextStoredInVisualSnapshot'] is False
+          assert '<!doctype html>' not in json.dumps(p)
           PY
       - name: Verify viewer and intake surfaces
         run: |
