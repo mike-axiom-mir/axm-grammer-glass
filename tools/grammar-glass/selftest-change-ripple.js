@@ -1,0 +1,42 @@
+'use strict';
+const assert=require('assert');
+const Base=require('./playground-core.js');
+const Intake=require('./grammar-102-intake-core.js');
+const Ripple=require('./change-ripple-core.js');
+const sha=v=>Base.sha256(v);
+const ids=['html','python','css',...Array.from({length:99},(_,i)=>`lang-${String(i+1).padStart(3,'0')}`)];
+function layer(items,extra={}){return{state:'PRESENT',digest:sha(items),...extra,items}}
+function snap(commit,variant){
+ const semantic=variant===1?[{id:'html:K01',digest:sha('html-old')},{id:'python:K01',digest:sha('python-same')}]:[{id:'html:K01',digest:sha('html-new')},{id:'python:K01',digest:sha('python-same')}];
+ const software=variant===1?[{id:'web',digest:sha('web-old')}]:[{id:'web',digest:sha('web-new')}];
+ return{schema:Intake.SCHEMA,version:'1.0.0',source:{repoFullName:'mike-axiom-mir/axm-102-grammer',commitSha:commit.repeat(40),treeSha:variant===1?'a'.repeat(40):'b'.repeat(40)},grammarIdentity:{profileCount:102,profileSnapshotSha256:sha(`profiles-${variant}`),languageIds:ids},layers:{specialistEyes:layer(ids.map(id=>({id,digest:sha(`eye-${id}`)})),{eyeCount:102}),semanticKeyboards:layer(semantic,{bankCount:102,keysPerBank:48,totalStableKeyCount:4896}),cheatcodeInfluence:layer([{id:'code.cheat.html.parse.01',digest:sha(variant===1?'cheat-old':'cheat-new')}],{meshCount:102,nodeCount:5100,edgeCount:120125}),softwareDirections:layer(software,{profileCount:29,familyCount:5,axisCount:7}),capabilityPassports:{state:'UNKNOWN'},grammarBridgeAtlas:{state:'UNKNOWN'}}};
+}
+const a=snap('1',1),b=snap('2',2);
+const glass={schema:'axm.code.grammar-glass-visual-snapshot.v1',version:'1.4.0',rootSeed:'seed',sourceSha256:sha('glass'),profileSnapshotSha256:sha('glass-profiles'),cycle:{cycleSha256:sha('cycle'),atoms:[{atomId:'h1',languageId:'html',atomType:'STRUCTURE',position:{angle:.1,radius:.4}},{atomId:'h2',languageId:'html',atomType:'INTERFACE',position:{angle:.3,radius:.6}},{atomId:'p1',languageId:'python',atomType:'CONTROL_FLOW',position:{angle:1.1,radius:.5}},{atomId:'c1',languageId:'css',atomType:'REPRESENTATION',position:{angle:2.1,radius:.55}}],edges:[{leftAtomId:'h1',rightAtomId:'p1',connectionClass:'CONTRAST',crossGrammar:true,thresholdMet:true},{leftAtomId:'h2',rightAtomId:'c1',connectionClass:'SUPPORT',crossGrammar:true,thresholdMet:true},{leftAtomId:'p1',rightAtomId:'c1',connectionClass:'SUPPORT',crossGrammar:true,thresholdMet:true}],influenceCarries:[{sourceAtomId:'h2',targetAtomId:'p1',carryClass:'DIRECT',crossGrammar:true,carrySha256:sha('carry')}]},contactMemory:{multiHopPaths:[{pathAtomIds:['h1','p1'],pathSha256:sha('mem'),hopCount:1},{pathAtomIds:['p1','c1'],pathSha256:sha('mem2'),hopCount:1}]},draftSky:[{starSha256:sha('draft'),cycleStep:2,languageIds:['html','python'],x:.2,y:.1},{starSha256:sha('draft2'),cycleStep:3,languageIds:['python'],x:.3,y:.2}],executionSky:[{runStarSha256:sha('run'),cycleStep:4,languageIds:['html'],resultClass:'PASS',x:.25,y:.2}]};
+const r1=Ripple.createChangeRipple(glass,a,b,{lensId:'SEMANTIC_DIRECTIONS',itemId:'html:K01'});
+const r2=Ripple.createChangeRipple(glass,a,b,{lensId:'SEMANTIC_DIRECTIONS',itemId:'html:K01'});
+assert.deepStrictEqual(r1,r2,'deterministic ripple');
+assert.strictEqual(r1.result,'GRAMMAR_102_CHANGE_RIPPLE_READY_STRUCTURAL_CONTACT_ONLY');
+assert.strictEqual(r1.origin.changeClass,'CHANGED');
+assert.strictEqual(r1.origin.languageId,'html');
+assert.strictEqual(r1.metrics.originAtomCount,2);
+assert.strictEqual(r1.metrics.relationCount,2);
+assert.strictEqual(r1.metrics.directCarryCount,1);
+assert.strictEqual(r1.metrics.contactMemoryPathCount,1);
+assert.strictEqual(r1.metrics.draftStarCount,1);
+assert.strictEqual(r1.metrics.runStarCount,1);
+assert.strictEqual(r1.metrics.darkGrammarRelationContactCount,1);
+assert.deepStrictEqual(r1.stages.neighborhood.neighborLanguageIds,['css','python']);
+assert.strictEqual(r1.truth.structuralContactNotCausalProof,true);
+assert.strictEqual(r1.truth.darkGrammarContactIsNotResolution,true);
+assert.strictEqual(r1.truth.cycleMutationPerformed,false);
+const shared=Ripple.createChangeRipple(glass,a,b,{lensId:'SEMANTIC_DIRECTIONS',itemId:'python:K01'});
+assert.strictEqual(shared.result,'GRAMMAR_102_CHANGE_RIPPLE_HELD_ITEM_NOT_CHANGED');
+const unmapped=Ripple.createChangeRipple(glass,a,b,{lensId:'SOFTWARE_DIRECTIONS',itemId:'web'});
+assert.strictEqual(unmapped.result,'GRAMMAR_102_CHANGE_RIPPLE_HELD_LANGUAGE_UNMAPPED');
+const cheat=Ripple.createChangeRipple(glass,a,b,{lensId:'CHEATCODE_INFLUENCE',itemId:'code.cheat.html.parse.01'});
+assert.strictEqual(cheat.origin.languageId,'html');
+const noGlass={...glass,cycle:{...glass.cycle,atoms:glass.cycle.atoms.filter(x=>x.languageId!=='html')}};
+const held=Ripple.createChangeRipple(noGlass,a,b,{lensId:'SEMANTIC_DIRECTIONS',itemId:'html:K01'});
+assert.strictEqual(held.result,'GRAMMAR_102_CHANGE_RIPPLE_HELD_LANGUAGE_NOT_RECORDED');
+console.log(JSON.stringify({ok:true,schema:r1.schema,languageId:r1.origin.languageId,originAtomCount:r1.metrics.originAtomCount,neighborLanguages:r1.stages.neighborhood.neighborLanguageIds,darkGrammarRelationContactCount:r1.metrics.darkGrammarRelationContactCount,draftStarCount:r1.metrics.draftStarCount,runStarCount:r1.metrics.runStarCount,authority:r1.truth.authority},null,2));

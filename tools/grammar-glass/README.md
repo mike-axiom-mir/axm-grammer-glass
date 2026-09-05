@@ -25,6 +25,22 @@ The Twister, contact-memory and Reactive Draft Mirror layers still do not execut
 
 Grounded claim: Grammar Glass is a seeded, replayable, provenance-bound polyglot structural field, observation surface and explicitly gated execution lane. It uses real AXM grammar knowledge to form and track temporary candidates; Phase 2 can run an exact lineage-bound candidate only inside a separately bound sandbox and returns the result as evidence rather than authority.
 
+## Playground — bend the glass, not the evidence
+
+The viewer now has a visual-only playground probe over the loaded snapshot. It does not alter the Twister itself.
+
+Available lenses:
+
+- **Gravity Well** — choose real grammar identities and orbit them around a visual focus anchored to their current location inside the vessel.
+- **Rift Scan** — turn the selected grammars' recorded relation classes into a visible boundary/contrast field.
+- **Star Hunt** — visualize Draft Star overlap for the chosen grammars and follow the selected structural neighborhood.
+- **ROLL 5** — choose five real grammars through a deterministic roll derived from the loaded root seed plus a recorded roll counter. Repeating the same snapshot and roll reproduces the same selection.
+- **Visual Warp** — changes only display intensity. It does not alter the recorded cycle or any evidence value.
+
+Every active playground state creates an inspectable `axm.code.grammar-glass-playground-probe.v1` receipt containing the selected grammar identities, source snapshot binding, grounded counts for atoms/relations/direct carries/memory paths/Draft Stars, and explicit no-authority truth fields. The receipt can be exported locally as JSON.
+
+The playground does **not** create a Draft Star, candidate, execution request, ranking, winner, semantic-equivalence claim, novelty proof or automatic re-entry. The recorded snapshot remains the evidence source beneath the lens.
+
 ## Phase 2 — Double Glass / Interglass Sandbox
 
 Phase 2 adds a visible execution lane without turning the Grammar Glass metadata modules into a fake OS sandbox.

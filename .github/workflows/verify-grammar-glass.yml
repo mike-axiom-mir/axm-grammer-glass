@@ -44,7 +44,7 @@ jobs:
           assert p['truth']['executionStarCountIsNotQuality'] is True
           assert p['truth']['executionHistoryDoesNotFeedTwisterAutomatically'] is True
           PY
-      - name: Verify viewer surfaces
+      - name: Verify viewer and intake surfaces
         run: |
           grep -q 'MOVING TOROIDAL FIELD' tools/grammar-glass/index.html
           grep -q 'REACTIVE DRAFT MIRROR GLASS' tools/grammar-glass/index.html
@@ -52,4 +52,45 @@ jobs:
           grep -q 'INTERGLASS SANDBOX EXECUTION LANE' tools/grammar-glass/index.html
           grep -q 'EXECUTION CONSTELLATION · RETURN HISTORY' tools/grammar-glass/index.html
           grep -q 'STAR NAVIGATOR' tools/grammar-glass/starzoom-steward.js
+          grep -q 'BEND THE GLASS · NOT THE EVIDENCE' tools/grammar-glass/index.html
+          grep -q 'DIRECT MANIPULATION · TOUCH LENS' tools/grammar-glass/index.html
+          grep -q 'SONIFICATION · GLASS ORCHESTRA' tools/grammar-glass/index.html
+          grep -q 'CONSTELLATION MIXER · STAR FLIGHT' tools/grammar-glass/index.html
+          grep -q 'PARALLEL UNIVERSE · GHOST GLASS' tools/grammar-glass/index.html
+          grep -q 'DARK GRAMMAR' tools/grammar-glass/index.html
+          grep -q 'VISUAL_TOUCH_LENS_READY_NO_MUTATION' tools/grammar-glass/playground-extensions-core.js
+          grep -q 'INTERPRETIVE_SONIFICATION_PLAN_READY' tools/grammar-glass/playground-extensions-core.js
+          grep -q 'RECORDED_STAR_FLIGHT_REPLAY_READY' tools/grammar-glass/playground-extensions-core.js
+          grep -q 'touchLensCreatesEvidence:false' tools/grammar-glass/vessel-view.js
+          grep -q 'staleProbeAutoClears:true' tools/grammar-glass/playground-touch.js
+          grep -q 'darkMatterIsPhysicsClaim:false' tools/grammar-glass/playground.js
+          grep -q 'orchestraIsInterpretive:true' tools/grammar-glass/playground-audio.js
+          grep -q 'orchestraEventDispatch:true' tools/grammar-glass/constellation-replay.js
+          grep -q 'PARALLEL_RECORDED_GLASS_COMPARISON_READY' tools/grammar-glass/ghost-glass-core.js
+          grep -q 'cosmologyClaimMade:false' tools/grammar-glass/ghost-glass-core.js
+          grep -q 'GRAMMAR_102_CAPABILITY_SNAPSHOT_IMPORTED_NOT_ACTIVATED' tools/grammar-glass/grammar-102-intake-core.js
+          grep -q 'GRAMMAR_102_GENERATION_COMPARISON_READY_NO_RANKING' tools/grammar-glass/grammar-102-intake-core.js
+          grep -q 'automaticDefaultReplacement:false' tools/grammar-glass/grammar-102-intake-core.js
+          grep -q 'darkGrammarResolutionNotInferred:true' tools/grammar-glass/grammar-102-intake-core.js
+          grep -q 'GRAMMAR_102_GHOST_EVOLUTION_VISUAL_READY_NO_RANKING' tools/grammar-glass/grammar-102-visual-core.js
+          grep -q 'itemPositionHasNoSemanticMeaning:true' tools/grammar-glass/grammar-102-visual-core.js
+          grep -q 'bridgeMarksAreNotBridgeTopology:true' tools/grammar-glass/grammar-102-visual-core.js
+          grep -q 'cheatcodeMarksAreNotInfluenceEdges:true' tools/grammar-glass/grammar-102-visual-core.js
+          grep -q '102-GRAMMAR EVOLUTION · GHOST FIELD' tools/grammar-glass/grammar-102-view.js
+          grep -q 'automaticImportActivation:false' tools/grammar-glass/grammar-102-view.js
+          grep -q 'GRAMMAR_102_CHANGE_RIPPLE_READY_STRUCTURAL_CONTACT_ONLY' tools/grammar-glass/change-ripple-core.js
+          grep -q 'structuralContactNotCausalProof:true' tools/grammar-glass/change-ripple-core.js
+          grep -q 'darkGrammarContactIsNotResolution:true' tools/grammar-glass/change-ripple-core.js
+          grep -q 'CHANGE RIPPLE · IMPACT LENS' tools/grammar-glass/change-ripple.js
+          grep -q 'workbenchPolishLoadsAsOptionalViewer:true' tools/grammar-glass/ghost-glass.js
+          grep -q 'motionCoordinatorLoadsAsOptionalViewer:true' tools/grammar-glass/ghost-glass.js
+          grep -q 'WORKBENCH HEALTH · HANDOFF' tools/grammar-glass/workbench-polish.js
+          grep -q 'staleStateAutoRepair:true' tools/grammar-glass/workbench-polish.js
+          grep -q 'readinessIsNotCorrectness:true' tools/grammar-glass/workbench-polish-core.js
+          grep -q 'motionControlCreatesEvidence:false' tools/grammar-glass/motion-coordinator.js
+          grep -q 'recordedStateMutation:false' tools/grammar-glass/motion-coordinator.js
+          grep -q 'viewer-state receipt only' docs/WORKBENCH_POLISH_HANDOFF.md
+          grep -q 'separate 102-Grammar development lane' docs/GRAMMAR_102_INTAKE_BRIDGE.md
+          grep -q 'geometry is intentionally non-semantic' docs/GRAMMAR_102_VISUAL_EVOLUTION.md
+          grep -q 'no claim about real dark matter is made' docs/DARK_GRAMMAR_METAPHOR.md
           git diff --check
