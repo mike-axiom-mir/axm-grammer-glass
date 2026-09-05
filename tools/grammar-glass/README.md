@@ -13,6 +13,10 @@ For exact replay, pass the recorded 64-character root seed with `--seed <seed>`.
 
 Open `tools/grammar-glass/index.html` and choose **Load snapshot JSON**. No canned language activity is shown before a snapshot is supplied.
 
+Full snapshots are read and parsed once. One stale-safe load transaction validates the selected primary snapshot and publishes it to every viewer instrument; superseded selections are held and cannot replace the newest selection. The header exposes `READING`, `BINDING`, `READY`, or `HELD` without a blocking browser alert. This load state is a viewer receipt only and creates no evidence or authority.
+
+For snapshots above 800 atoms, the moving canvases start in **SAFE** visual detail: a deterministic, language-covering 384-atom projection over the complete recorded snapshot. The vessel header always shows `VISUAL rendered/evidence · EVIDENCE FULL`. **DETAIL +** advances to BALANCED (up to 768 atoms), then FULL. This changes drawing work only; metrics, inspectors, receipts, lineage, export data, and the loaded snapshot retain all recorded atoms. Held from the current projection does not mean absent, lower-quality, or unimportant.
+
 The moving viewer now uses `requestAnimationFrame` to interpolate the snapshot's recorded atom phase and angular velocity. Direct carry pulses come from recorded direct influence receipts. Purple multi-hop pulses come from recorded contact-memory paths. The glass shell and motion are visualization only: interpolation does not create evidence and does not mutate the Code Twister cycle.
 
 The **Reactive Draft Mirror Glass** shows a structural response generated from the selected recorded formation, grammar components, typed relationships, contact-memory application state, mirror lens and inert draft-recipe digest. It is readable output derived from the code/grammar data, but it is **not source code, not executable, not a winner, and not runtime evidence**.
@@ -40,6 +44,24 @@ Available lenses:
 Every active playground state creates an inspectable `axm.code.grammar-glass-playground-probe.v1` receipt containing the selected grammar identities, source snapshot binding, grounded counts for atoms/relations/direct carries/memory paths/Draft Stars, and explicit no-authority truth fields. The receipt can be exported locally as JSON.
 
 The playground does **not** create a Draft Star, candidate, execution request, ranking, winner, semantic-equivalence claim, novelty proof or automatic re-entry. The recorded snapshot remains the evidence source beneath the lens.
+
+## Discovery Kiln — explicit combination preparation
+
+The Discovery Kiln is the opt-in bridge after a playground probe. **PREPARE CANDIDATE** records a device-local append-only receipt bound to the exact combination identity, root seed, cycle digest, roll, grammar identities and a digest over its grounded atoms, relations, direct carries and memory paths. Repeating a combination is counted as another preparation event rather than silently replacing its earlier history.
+
+The state rail is `ROLLED → GROUNDED → HELD / DRAFT STAR → CANDIDATE → SANDBOX → RECEIPT`. A static snapshot can bind only lineage already recorded inside that snapshot. When a new formation requires the full catalog and cycle state, the browser reports `HELD · ADAPTER`; it does not reconstruct missing private state or manufacture a substitute Draft Star.
+
+The shared Discovery Kiln organ provides the full source-side route for an authorized caller that possesses the recorded cycle, catalog, condition and day receipts. It selects a bounded real atom set deterministically, represents every selected grammar, and reuses the existing formation, Mirror, Draft Star, production-packet and Interglass functions. The default route omits an executor and therefore ends at `HELD_ADAPTER_REQUIRED`. A separately supplied browser executor creates an armable request, but preparation still performs no execution.
+
+The local ledger uses browser storage when available and degrades to session-only memory if device storage is unavailable. It performs no cloud sync. Its labels are deliberately limited to `NEW TO THIS LEDGER`, `SEEN IN THIS LEDGER`, and `TESTED IN THIS LEDGER`; none is a novelty or quality judgment.
+
+### Construction Hand — bounded RNG construction field
+
+The generated snapshot includes eight source-free construction bundles by default, bound to deterministic **ROLL 5** rolls 1–8. Use `--construction-rolls N` during snapshot generation to request 1–24 rolls. The coverage receipt records requested, covered and held roll identities plus distinct language-set, plan and artifact counts; missing plans cannot silently shrink the field. These counts describe deterministic variation, not novelty or quality.
+
+After **PREPARE CANDIDATE**, the viewer exposes a four-part explicit sequence: **BUILD SOURCE → ARM SOURCE → RUN SOURCE ONCE → RELEASE SOURCE**. Build replays the shared renderer and exposes bytes only when the artifact, file, byte-length, static-verification and run-request digests all match. Its source preview uses text content and does not execute.
+
+Arm replaces the isolated `sandbox="allow-scripts"` iframe with a placeholder; it does not load the candidate. Run loads the exact transient `srcdoc` once. A terminal receipt requires exact plan and adapter lineage plus an opaque (`null`) origin. A PASS reports only the candidate's bounded runtime invariant. It is not a correctness, quality, novelty, admission, promotion or canon result. An out-of-field roll, altered mode/strength, or manually chosen combination cannot borrow another bundle and remains at `HELD · ADAPTER`.
 
 ## Phase 2 — Double Glass / Interglass Sandbox
 

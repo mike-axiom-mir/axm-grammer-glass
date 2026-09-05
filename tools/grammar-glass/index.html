@@ -11,6 +11,9 @@
 <link rel="stylesheet" href="starzoom.css">
 <link rel="stylesheet" href="starzoom-steward.css">
 <link rel="stylesheet" href="playground.css">
+<link rel="stylesheet" href="snapshot-load.css">
+<link rel="stylesheet" href="pulse-check.css">
+<link rel="stylesheet" href="discovery-kiln.css">
 </head>
 <body><main>
 <header class="top">
@@ -19,7 +22,10 @@
     <h1>GRAMMAR GLASS <span>/ CODE TWISTER</span></h1>
     <div class="muted">Seeded · replayable · provenance-bound · visual motion creates no evidence</div>
   </div>
-  <div class="facts" id="facts"></div>
+  <div class="snapshot-state">
+    <span class="pill" id="snapshotLoadStatus" data-phase="EMPTY" aria-live="polite">SNAPSHOT EMPTY</span>
+    <div class="facts" id="facts"></div>
+  </div>
 </header>
 
 <section class="load" id="load"><div>
@@ -35,6 +41,8 @@
       <div><h2>GRAMMAR GLASS VESSEL · SOFTWARE TWISTER</h2><small>seeded code matter inside the observation glass</small></div>
       <div class="motion">
         <span class="pill green" id="coverage"></span>
+        <span class="pill amber" id="renderBudgetStatus" aria-live="polite">VISUAL EMPTY</span>
+        <button class="control" id="renderBudgetToggle" type="button" disabled>DETAIL +</button>
         <button class="control" id="motionToggle" aria-pressed="true">PAUSE</button>
         <label class="pill">speed <input id="speed" type="range" min="20" max="220" value="100"></label>
       </div>
@@ -129,6 +137,40 @@
         <div class="playground-chip-grid" id="playgroundLanguages"></div>
         <div class="playground-readout" id="playgroundMetrics"><div class="playground-empty">Load a snapshot, then choose grammars or roll a reproducible set.</div></div>
 
+        <div class="discovery-kiln" id="discoveryKiln">
+          <div class="kiln-head">
+            <div><div class="kiln-kicker">RNG DISCOVERY → BOUNDED CANDIDATE</div><h3 class="kiln-title">DISCOVERY KILN</h3><small class="kiln-identity" id="kilnIdentity">no active combination</small></div>
+            <span class="pill amber" id="kilnStatus" aria-live="polite">WAITING FOR ROLL</span>
+          </div>
+          <div class="kiln-readouts">
+            <div class="kiln-readout" id="kilnHistory"><span>LOCAL HISTORY</span><b>EMPTY</b><small>Choose or roll real grammars first.</small></div>
+            <div class="kiln-readout" id="kilnGrounding"><span>GROUNDING</span><b>WAITING</b><small>No candidate has been constructed.</small></div>
+          </div>
+          <div class="kiln-rail" id="kilnRail" aria-label="Discovery candidate state rail"></div>
+          <div class="kiln-actions">
+            <button id="kilnPrepare" disabled>PREPARE CANDIDATE</button>
+            <button id="kilnInspect">INSPECT</button>
+            <button id="kilnExport" disabled>EXPORT LEDGER</button>
+            <button id="kilnArm" disabled>ARM RECORDED CANDIDATE</button>
+            <button id="kilnRun" disabled>RUN RECORDED ONCE</button>
+          </div>
+          <section class="construction-hand" aria-labelledby="constructionTitle">
+            <div class="construction-head"><div><span>BOUNDED RNG FIELD → EXACT PLAN → TRANSIENT SOURCE → ISOLATED RUN</span><h4 id="constructionTitle">CONSTRUCTION HAND</h4></div><b id="constructionStatus" aria-live="polite">WAITING</b></div>
+            <div class="kiln-readout construction-readout" id="constructionReadout"><span>CONSTRUCTION HAND</span><b>WAITING FOR PREPARATION</b><small>Roll, then prepare the exact combination.</small></div>
+            <div class="construction-actions">
+              <button id="constructionBuild" disabled>1 · BUILD SOURCE</button>
+              <button id="constructionArm" disabled>2 · ARM SOURCE</button>
+              <button id="constructionRun" disabled>3 · RUN SOURCE ONCE</button>
+              <button id="constructionRelease" disabled>RELEASE SOURCE</button>
+            </div>
+            <div class="construction-workspace">
+              <div><small>ISOLATED PREVIEW / RUNTIME</small><iframe id="constructionFrame" title="Construction Hand isolated candidate sandbox" sandbox="allow-scripts"></iframe></div>
+              <div><small>SOURCE PREVIEW · TEXT ONLY · NOT EXECUTED</small><pre id="constructionSourcePreview">No source built. Exact source bytes appear here only after BUILD SOURCE.</pre></div>
+            </div>
+          </section>
+          <div class="kiln-truth">Preparation records exact combination and lineage digests. A bounded field of precomputed RNG rolls can construct different deterministic sources in this session; manual or out-of-field combinations still stop at <b>HELD · ADAPTER</b>. Build, arm and run are separate explicit actions, one attempt only. A PASS is a bounded runtime invariant—not quality, correctness, novelty, selection, promotion or canon. “New here” means only new to this local ledger.</div>
+        </div>
+
         <div class="instrument-grid">
           <div class="instrument-card">
             <div class="instrument-head"><b>DIRECT MANIPULATION · TOUCH LENS</b><span id="touchStatus">OFF</span></div>
@@ -151,6 +193,13 @@
             <label class="instrument-slider"><span>FLIGHT SPEED</span><input id="replaySpeed" type="range" min="25" max="300" value="100"><b>0.25–3×</b></label>
             <div class="replay-readout" id="replayLabel">No recorded star events.</div>
             <div class="replay-note">Replay follows recorded Draft/Run Star order and lineage. It never invents history or feeds the Twister automatically.</div>
+          </div>
+
+          <div class="instrument-card pulse-card">
+            <div class="instrument-head"><b>FRAME STEWARD · LOCAL PULSE</b><span id="pulseStatus" aria-live="polite">WAIT SNAPSHOT</span></div>
+            <div class="instrument-controls"><button id="pulseRun" disabled>MEASURE 5S</button><button id="pulseInspect">INSPECT PULSE</button><button id="pulseExport" disabled>EXPORT RECEIPT</button></div>
+            <div class="playground-readout pulse-readout" id="pulseMetrics"><div><span>STATE</span><b>READY TO SAMPLE</b></div><div><span>RNG PATH</span><b>PRESERVED</b></div></div>
+            <div class="pulse-note">Measures this device locally. It sends no telemetry, changes no render tier, and does not narrow seeded combination discovery. Unfamiliar combinations remain candidates for explicit construction and testing—not automatic proof of novelty or correctness.</div>
           </div>
 
           <div class="instrument-card ghost-card">
@@ -185,14 +234,29 @@
   <section class="panel languages"><div class="head"><h2>Actual grammar identities</h2><span class="pill" id="profileCount"></span></div><div class="langlist" id="languages"></div></section>
 </div>
 </main>
+<script src="snapshot-loader-core.js"></script>
+<script src="snapshot-load-core.js"></script>
+<script src="snapshot-load.js"></script>
+<script src="playground-core.js"></script>
+<script src="../../shared/code-capability-fabric/language-organs/code-grammar-glass-construction-renderer.js"></script>
+<script src="construction-hand-core.js"></script>
+<script src="construction-hand-executor-core.js"></script>
+<script src="discovery-kiln-core.js"></script>
+<script src="motion-coordinator.js"></script>
+<script src="frame-steward-core.js"></script>
+<script src="frame-steward.js"></script>
+<script src="render-budget-core.js"></script>
+<script src="render-budget.js"></script>
 <script src="interglass-executor.js"></script>
+<script src="construction-hand-executor.js"></script>
 <script src="app.js"></script>
 <script src="execution-history-view.js"></script>
 <script src="vessel-view.js"></script>
-<script src="playground-core.js"></script>
 <script src="playground-extensions-core.js"></script>
 <script src="ghost-glass-core.js"></script>
 <script src="playground.js"></script>
+<script src="discovery-kiln.js"></script>
+<script src="construction-hand.js"></script>
 <script src="playground-touch.js"></script>
 <script src="playground-audio.js"></script>
 <script src="constellation-replay.js"></script>
@@ -201,4 +265,5 @@
 <script src="starzoom-data.js"></script>
 <script src="starzoom.js"></script>
 <script src="starzoom-steward.js"></script>
+<script src="pulse-check.js"></script>
 </body></html>

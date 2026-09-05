@@ -6,6 +6,8 @@ const observation = require('./code-grammar-glass-observation.js');
 const memory = require('./code-grammar-glass-memory.js');
 const interglass = require('./code-grammar-glass-interglass.js');
 const executionHistory = require('./code-grammar-glass-execution-history.js');
+const discoveryKiln = require('./code-grammar-glass-discovery-kiln.js');
+const constructionHand = require('./code-grammar-glass-construction-hand.js');
 
 module.exports = Object.freeze({
   GRAMMAR_FAMILY: base.GRAMMAR_FAMILY,
@@ -79,5 +81,20 @@ module.exports = Object.freeze({
   createExecutionReplayRequest: executionHistory.createExecutionReplayRequest,
   augmentVisualSnapshotWithExecutionHistory: executionHistory.augmentVisualSnapshotWithExecutionHistory,
   executionHistorySnapshot: executionHistory.snapshot,
+  DISCOVERY_KILN_STATES: discoveryKiln.DISCOVERY_KILN_STATES,
+  createDiscoveryKilnCandidate: discoveryKiln.createDiscoveryKilnCandidate,
+  discoveryKilnSnapshot: discoveryKiln.snapshot,
+  CONSTRUCTION_HAND_OUTPUT_TARGET: constructionHand.OUTPUT_TARGET,
+  CONSTRUCTION_HAND_RULES: constructionHand.CONSTRUCTION_RULES,
+  createWebMicroAppConstructionAdapter: constructionHand.createWebMicroAppAdapter,
+  createConstructionDirection: constructionHand.createConstructionDirection,
+  createConstructionPlan: constructionHand.createConstructionPlan,
+  constructWebMicroApp: constructionHand.constructWebMicroApp,
+  verifyConstructedWebMicroApp: constructionHand.verifyWebMicroApp,
+  createConstructionRunRequest: constructionHand.createConstructionRunRequest,
+  createTransientConstructionLaunchEnvelope: constructionHand.createTransientLaunchEnvelope,
+  createConstructionVisualBundle: constructionHand.createConstructionVisualBundle,
+  augmentVisualSnapshotWithConstructionHand: constructionHand.augmentVisualSnapshotWithConstructionHand,
+  constructionHandSnapshot: constructionHand.snapshot,
   snapshot: observation.snapshot
 });

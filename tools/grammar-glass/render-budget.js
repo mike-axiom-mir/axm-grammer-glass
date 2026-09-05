@@ -1,0 +1,13 @@
+(()=>{'use strict';
+const Core=window.AXMGrammarGlassRenderBudgetCore,Loader=window.AXMGrammarGlassSnapshotLoader;if(!Core)return;
+let snapshot=null,mode='AUTO',plan=null;
+const $=id=>document.getElementById(id);
+const debug=window.__GRAMMAR_GLASS_RENDER_BUDGET__={loaded:false,mode:'EMPTY',evidenceAtomCount:0,renderedAtomCount:0,projectionHeldAtomCount:0,fullEvidenceRetained:true,projectionBudgetCreatesEvidence:false,authority:'NONE'};
+function updateUI(){const status=$('renderBudgetStatus'),button=$('renderBudgetToggle');if(!plan){if(status)status.textContent='VISUAL EMPTY';return}if(status){status.textContent=`VISUAL ${plan.renderedAtomCount}/${plan.evidenceAtomCount} · EVIDENCE FULL`;status.title=`${plan.projectionHeldAtomCount} recorded atoms are held from this projection only. The complete snapshot remains loaded.`}if(button){button.disabled=false;button.textContent=plan.mode==='SAFE'?'DETAIL +':plan.mode==='BALANCED'?'FULL +':'SAFE VIEW';button.setAttribute('aria-label',`Visual detail ${plan.mode.toLowerCase()}; show ${plan.mode==='SAFE'?'balanced':plan.mode==='BALANCED'?'full':'safe'} projection`)}}
+function rebuild(){if(!snapshot)return;plan=Core.createPlan(snapshot.cycle.atoms,{mode});mode=plan.mode;Object.assign(debug,{loaded:true,mode:plan.mode,evidenceAtomCount:plan.evidenceAtomCount,renderedAtomCount:plan.renderedAtomCount,projectionHeldAtomCount:plan.projectionHeldAtomCount,selectionFingerprint:plan.selectionFingerprint});updateUI();dispatchEvent(new CustomEvent('axm:grammar-glass-render-budget-changed',{detail:{...debug}}))}
+function bind(s){if(!s||s.schema!=='axm.code.grammar-glass-visual-snapshot.v1'||!Array.isArray(s.cycle?.atoms))return;const previousEvidence=plan?.evidenceAtomCount||0;snapshot=s;if(mode==='AUTO'||previousEvidence!==s.cycle.atoms.length)mode=Core.normalizeMode('AUTO',s.cycle.atoms.length);rebuild()}
+function cycle(){if(!plan)return;mode=Core.nextMode(plan.mode);rebuild()}
+function getAtomEntries(){return plan?plan.entries:(snapshot?.cycle?.atoms||[]).map((atom,index)=>({atom,index}))}
+function setup(){const button=$('renderBudgetToggle');if(button)button.addEventListener('click',cycle);addEventListener('axm:grammar-glass-snapshot-loaded',event=>bind(event.detail?.snapshot));if(window.GRAMMAR_GLASS_SNAPSHOT)bind(window.GRAMMAR_GLASS_SNAPSHOT);updateUI()}
+window.AXMGrammarGlassRenderBudget=Object.freeze({bind,cycle,getAtomEntries,getPlan:()=>plan,getState:()=>({...debug}),contract:Object.freeze({fullEvidenceRetained:true,projectionBudgetCreatesEvidence:false,projectionBudgetRanksAtoms:false,recordedStateMutation:false,authority:'NONE'})});setup();
+})();

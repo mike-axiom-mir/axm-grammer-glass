@@ -43,6 +43,13 @@ jobs:
           assert p['executionSky']==[]
           assert p['truth']['executionStarCountIsNotQuality'] is True
           assert p['truth']['executionHistoryDoesNotFeedTwisterAutomatically'] is True
+          assert p['constructionHand']['coverage']['requestedRolls']==list(range(1,9))
+          assert p['constructionHand']['coverage']['coveredRolls']==list(range(1,9))
+          assert p['constructionHand']['coverage']['heldRolls']==[]
+          assert p['constructionHand']['coverage']['distinctConstructionPlanCount']==8
+          assert p['constructionHand']['coverage']['distinctArtifactCount']==8
+          assert p['constructionHand']['truth']['sourceTextStoredInVisualSnapshot'] is False
+          assert '<!doctype html>' not in json.dumps(p)
           PY
       - name: Verify viewer and intake surfaces
         run: |
@@ -89,6 +96,15 @@ jobs:
           grep -q 'readinessIsNotCorrectness:true' tools/grammar-glass/workbench-polish-core.js
           grep -q 'motionControlCreatesEvidence:false' tools/grammar-glass/motion-coordinator.js
           grep -q 'recordedStateMutation:false' tools/grammar-glass/motion-coordinator.js
+          grep -q 'VISUAL EMPTY' tools/grammar-glass/index.html
+          grep -q 'EVIDENCE FULL' tools/grammar-glass/render-budget.js
+          grep -q 'onePhysicalReadPerFileObject:true' tools/grammar-glass/snapshot-loader-core.js
+          grep -q 'oneValidatedPublisher:true' tools/grammar-glass/snapshot-load-core.js
+          grep -q 'staleSelectionCannotReplaceCurrent:true' tools/grammar-glass/snapshot-load-core.js
+          grep -q 'SNAPSHOT READY' tools/grammar-glass/snapshot-load.js
+          grep -q 'primaryFileListenerCount:1' tools/grammar-glass/selftest-snapshot-load-routing.js
+          grep -q 'omittedFromProjectionMeansAbsent:false' tools/grammar-glass/render-budget-core.js
+          grep -q 'FULL_SNAPSHOT_LOAD_AND_PROJECTION_BUDGET' docs/LIVE_DISCOVERY_LANE.md
           grep -q 'viewer-state receipt only' docs/WORKBENCH_POLISH_HANDOFF.md
           grep -q 'separate 102-Grammar development lane' docs/GRAMMAR_102_INTAKE_BRIDGE.md
           grep -q 'geometry is intentionally non-semantic' docs/GRAMMAR_102_VISUAL_EVOLUTION.md

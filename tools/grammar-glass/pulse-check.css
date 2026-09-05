@@ -1,0 +1,7 @@
+.pulse-note{margin-top:.45rem;font-size:.68rem;line-height:1.4;opacity:.68}
+.pulse-card{border-color:rgba(125,246,190,.2);box-shadow:inset 0 0 24px rgba(125,246,190,.025)}
+.pulse-readout{margin-bottom:0}
+.pulse-card button:disabled{opacity:.38;cursor:not-allowed}
+.pulse-card #pulseStatus[data-state="SAMPLING"]{color:#ffc86b}
+.pulse-card #pulseStatus[data-state="READY"]{color:#7df6be}
+.pulse-card #pulseStatus[data-state="HELD"]{color:#ff728f}

@@ -1,6 +1,7 @@
 'use strict';
 
 const glass = require('./code-grammar-glass.js');
+const playground = require('../../../tools/grammar-glass/playground-core.js');
 
 function argument(name, fallback = null) {
   const flag = `--${name}`;
@@ -15,6 +16,7 @@ function main() {
   const dayId = argument('day', 'grammar-glass');
   const ticks = Math.max(1, Math.min(64, Number(argument('ticks', '8')) || 8));
   const starLimit = Math.max(1, Math.min(24, Number(argument('stars', '8')) || 8));
+  const constructionRollCount = Math.max(1, Math.min(24, Number(argument('construction-rolls', '8')) || 8));
   const source = glass.loadGrammarSource();
   const catalog = glass.createAtomCatalog(source);
   const conditions = glass.createConditionRevision({
@@ -139,9 +141,57 @@ function main() {
     dayStart,
     interglassPolicySha256: interglassPolicy.policySha256
   });
-  const visual = glass.augmentVisualSnapshotWithExecutionHistory({
+  let visual = glass.augmentVisualSnapshotWithExecutionHistory({
     visualSnapshot: doubleGlassVisual,
     executionHistory
+  });
+  const constructionAdapter = glass.createWebMicroAppConstructionAdapter();
+  const constructionDirection = glass.createConstructionDirection({ projectId: 'grammar-glass' });
+  const constructionExecutor = glass.createBrowserSandboxExecutorProfile({ policy: interglassPolicy });
+  const constructionBundles = [];
+  const constructionFieldAttempts = [];
+  for (let roll = 1; roll <= constructionRollCount; roll += 1) {
+    const constructionLanguages = playground.rollLanguages(visual, { count: 5, roll });
+    const constructionProbe = playground.createProbe(visual, {
+      languageIds: constructionLanguages,
+      mode: 'GRAVITY_WELL',
+      strength: 0.72,
+      roll
+    });
+    const constructionCandidate = glass.createDiscoveryKilnCandidate({
+      probe: constructionProbe,
+      cycle,
+      catalog,
+      conditionRevision: conditions,
+      dayStart,
+      contactMemory,
+      appliedMemoryCarries: memoryStep && memoryStep.appliedMemoryCarries || [],
+      projectId: 'grammar-glass'
+    });
+    const constructionPlan = glass.createConstructionPlan({
+      kilnCandidate: constructionCandidate,
+      adapter: constructionAdapter,
+      direction: constructionDirection
+    });
+    const constructionBundle = glass.createConstructionVisualBundle({
+      kilnCandidate: constructionCandidate,
+      plan: constructionPlan,
+      adapter: constructionAdapter,
+      direction: constructionDirection,
+      executorProfile: constructionExecutor
+    });
+    constructionFieldAttempts.push({
+      roll,
+      candidateResult: constructionCandidate.result,
+      planResult: constructionPlan.result,
+      bundleResult: constructionBundle.result
+    });
+    if (constructionBundle.result === 'CONSTRUCTION_VISUAL_BUNDLE_READY_NO_SOURCE_BYTES') constructionBundles.push(constructionBundle);
+  }
+  visual = glass.augmentVisualSnapshotWithConstructionHand({
+    visualSnapshot: visual,
+    bundles: constructionBundles,
+    fieldAttempts: constructionFieldAttempts
   });
   process.stdout.write(`${JSON.stringify(visual, null, 2)}\n`);
 }

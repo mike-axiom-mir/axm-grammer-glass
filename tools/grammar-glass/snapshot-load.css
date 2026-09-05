@@ -1,0 +1,5 @@
+.snapshot-state{display:grid;justify-items:end;gap:8px}
+.snapshot-state [data-phase="READING"],.snapshot-state [data-phase="BINDING"]{border-color:#ffc86b88;color:var(--amber)}
+.snapshot-state [data-phase="READY"]{border-color:#7df6be88;color:var(--green)}
+.snapshot-state [data-phase="HELD_INVALID"]{border-color:#ff728f88;color:var(--red)}
+@media(max-width:640px){.snapshot-state{justify-items:start}}

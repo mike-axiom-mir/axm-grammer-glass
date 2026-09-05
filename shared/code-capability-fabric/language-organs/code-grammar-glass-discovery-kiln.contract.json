@@ -1,0 +1,58 @@
+{
+  "schema": "axm.code.grammar-glass-discovery-kiln-contract.v1",
+  "version": "1.0.0",
+  "status": "TEST",
+  "purpose": "Bind an explicit seeded Grammar Glass combination to the existing formation, Mirror, Draft Star, inert production packet and Interglass path without granting execution or promotion authority.",
+  "input": {
+    "probe": "axm.code.grammar-glass-playground-probe.v1",
+    "cycle": "axm.code.grammar-glass-cycle-state.v1",
+    "catalog": "axm.code.grammar-structural-atom-catalog.v1",
+    "conditionRevision": "axm.code.grammar-glass-condition-revision.v1",
+    "dayStart": "axm.code.grammar-glass-day-start.v1",
+    "contactMemory": "optional axm.code.grammar-contact-memory.v1",
+    "executorProfile": "optional axm.code.interglass-browser-sandbox-executor-profile.v1"
+  },
+  "output": "axm.code.grammar-glass-discovery-kiln-candidate.v1",
+  "stateRail": [
+    "ROLLED",
+    "GROUNDED",
+    "HELD",
+    "DRAFT_STAR",
+    "CANDIDATE",
+    "SANDBOX",
+    "RECEIPT"
+  ],
+  "selection": {
+    "source": "recorded catalog atoms belonging to the probe grammar identities",
+    "method": "deterministic hash ordering from combination identity",
+    "maximumAtomCount": 12,
+    "everySelectedGrammarRepresented": true,
+    "semanticEquivalenceInferred": false
+  },
+  "defaultHold": {
+    "result": "HELD_ADAPTER_REQUIRED",
+    "reason": "No executor is selected implicitly. The caller must explicitly supply a compatible Interglass executor profile."
+  },
+  "viewer": {
+    "ledgerSchema": "axm.code.grammar-glass-local-discovery-ledger.v1",
+    "storage": "device-local browser storage with session-only fallback",
+    "exactExistingCandidateBindingRequired": true,
+    "sameLanguageSetAloneIsSufficientBinding": false,
+    "cloudSync": false
+  },
+  "truth": {
+    "rngProvesNovelty": false,
+    "localUnobservedMeansGloballyNovel": false,
+    "candidateModelIsArbitrarySourceCode": false,
+    "preparationIsExecution": false,
+    "automaticReentry": false,
+    "automaticSelection": false,
+    "automaticPromotion": false,
+    "canonAuthority": false
+  },
+  "verification": {
+    "sharedOrganSelftest": "selftest-code-grammar-glass-discovery-kiln.js",
+    "viewerCoreSelftest": "../../../tools/grammar-glass/selftest-discovery-kiln.js"
+  },
+  "authority": "NONE"
+}
