@@ -1,0 +1,39 @@
+{
+  "schema": "axm.grammar-glass.capability-registry-receipt/v1",
+  "generator": "tools/capability-discovery/generate-registry.mjs",
+  "pattern_provenance": {
+    "repo": "mike-axiom-mir/axm-local-game-hub",
+    "ref": "automation/capability-weaver-hub-registry-v0.1",
+    "path": "tools/generate-capability-registry.cjs",
+    "relationship": "adapted-pattern-no-runtime-dependency"
+  },
+  "inputs": [
+    {
+      "path": "shared/code-capability-fabric/language-organs/code-grammar-glass-construction-hand.contract.json",
+      "git_blob_sha1": "32897dc1bed2f54c25bbc39cc1b173401332326e"
+    },
+    {
+      "path": "shared/code-capability-fabric/language-organs/code-grammar-glass-construction-hand.js",
+      "git_blob_sha1": "cd38f23bbb7d0dde97878ca22542095e731a9145"
+    },
+    {
+      "path": "shared/code-capability-fabric/language-organs/code-grammar-glass-discovery-kiln.contract.json",
+      "git_blob_sha1": "47cd3e5ce3c00cc3c3b73c27c40f3012f7b7d437"
+    },
+    {
+      "path": "shared/code-capability-fabric/language-organs/code-grammar-glass-discovery-kiln.js",
+      "git_blob_sha1": "c7891f057a00db4083565b9293897e7a14c76e85"
+    }
+  ],
+  "output": {
+    "path": "registry/public-capabilities.jsonl",
+    "records": 2,
+    "sha256": "025742b42eddc7c26ba7b4816c401c1ae6688e45bee0830ac71ecd87bd39987f"
+  },
+  "truth": {
+    "declarations_are_runtime_proof": false,
+    "grants_authority": false,
+    "public_discovery_is_explicit_opt_in": true,
+    "source_contracts_remain_authoritative": true
+  }
+}
