@@ -178,8 +178,10 @@
   }
   function validFabric(fabric) {
     if (!fabric || fabric.schema !== 'axm.code.grammar-glass-state-ripple-fabric.v1' || !fabric.fabricSha256 || !Array.isArray(fabric.nodes) || !Array.isArray(fabric.topologicalOrder) || fabric.nodeCount !== fabric.nodes.length || fabric.topologicalOrder.length !== fabric.nodes.length) return false;
-    const core = { ...fabric }, expected = core.fabricSha256; delete core.fabricSha256;
-    return sha256(core) === expected && fabric.graph?.graphSha256 && new Set(fabric.topologicalOrder).size === fabric.nodeCount;
+    try {
+      const rebuilt = createFabric({ fabricId: fabric.fabricId, nodes: fabric.nodes, requiredEffects: fabric.requiredEffects, binding: fabric.binding, opaqueNodeIds: fabric.opaqueNodeIds });
+      return rebuilt.fabricSha256 === fabric.fabricSha256 && canon(rebuilt) === canon(fabric);
+    } catch { return false; }
   }
   function readSnapshot(fabric, state) {
     const paths = uniqSorted(fabric.nodes.flatMap(node => node.reads));
