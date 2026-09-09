@@ -17,6 +17,16 @@ Full snapshots are read and parsed once. One stale-safe load transaction validat
 
 For snapshots above 800 atoms, the moving canvases start in **SAFE** visual detail: a deterministic, language-covering 384-atom projection over the complete recorded snapshot. The vessel header always shows `VISUAL rendered/evidence · EVIDENCE FULL`. **DETAIL +** advances to BALANCED (up to 768 atoms), then FULL. This changes drawing work only; metrics, inspectors, receipts, lineage, export data, and the loaded snapshot retain all recorded atoms. Held from the current projection does not mean absent, lower-quality, or unimportant.
 
+## Static evidence overview
+
+For review, documentation, screen readers, or machines that cannot run the animated canvas, generate a self-contained SVG from the same visual snapshot:
+
+```bash
+node tools/grammar-glass/static-overview.js snapshot.json overview.svg SAFE
+```
+
+The command writes `overview.svg` plus `overview.svg.receipt.json`. It reuses the existing deterministic render budget, preserves all source evidence, declares how many atoms and edges were drawn or held from the frame, and carries no scripts or external resources. The SVG is a non-authoritative realization: its geometry is not semantic distance, Draft Stars are not quality votes, and it does not mutate or add evidence to the loaded Grammar Glass state.
+
 The moving viewer now uses `requestAnimationFrame` to interpolate the snapshot's recorded atom phase and angular velocity. Direct carry pulses come from recorded direct influence receipts. Purple multi-hop pulses come from recorded contact-memory paths. The glass shell and motion are visualization only: interpolation does not create evidence and does not mutate the Code Twister cycle.
 
 The **Reactive Draft Mirror Glass** shows a structural response generated from the selected recorded formation, grammar components, typed relationships, contact-memory application state, mirror lens and inert draft-recipe digest. It is readable output derived from the code/grammar data, but it is **not source code, not executable, not a winner, and not runtime evidence**.
