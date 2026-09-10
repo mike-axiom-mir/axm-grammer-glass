@@ -63,6 +63,15 @@ const signalEntry = resealEntry({
 const signalBaseline = resealBaseline(full.baseline, { 'copy-input': signalEntry });
 eq(Ripple.validBaseline(fabric, signalBaseline), false, 'cache signals must match the node operation contract');
 
+const nonPortableWrites = [{ path: 'output.safe', value: { present: true, value: Number.NaN } }];
+const nonPortableEntry = resealEntry({
+  ...original,
+  writeValues: nonPortableWrites,
+  outputSha256: Ripple.sha256({ writeValues: nonPortableWrites, emittedSignals: [] })
+});
+const nonPortableBaseline = resealBaseline(full.baseline, { 'copy-input': nonPortableEntry });
+eq(Ripple.validBaseline(fabric, nonPortableBaseline), false, 'non-portable cache values cannot hide behind JSON hash equivalence');
+
 console.log(JSON.stringify({
   result: 'GRAMMAR_GLASS_STATE_RIPPLE_BASELINE_ADMISSION_SELFTEST_PASS',
   assertions,
