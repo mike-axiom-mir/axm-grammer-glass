@@ -73,6 +73,16 @@ The baseline contains:
 - emitted signals;
 - final-state digest.
 
+Baseline admission reconstructs the fabric-owned cache contract instead of
+trusting a cache entry merely because it can hash itself. Every retained entry
+must bind the exact node identity and node digest, contain exactly that node's
+declared write paths in deterministic order, reproduce its operation-declared
+signal sequence, and derive its output identity from that exact patch and
+signal list. The baseline must also contain exactly the fabric's watched paths
+and cache keys, and every value must be finite portable JSON. Foreign, missing,
+extra, non-portable, or re-sealed cache material is refused before sparse state
+can be published.
+
 It does not treat the cache as learned weights, training, semantic truth, or authority.
 
 ## Sparse update
