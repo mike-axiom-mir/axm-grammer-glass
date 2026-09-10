@@ -1,0 +1,70 @@
+name: Construction Hand experience
+
+on:
+  push:
+    branches:
+      - automation/experience-construction-hand-guidance-20260910
+  pull_request:
+    paths:
+      - tools/grammar-glass/construction-hand.js
+      - tools/grammar-glass/discovery-kiln.css
+      - tools/grammar-glass/selftest-construction-hand-experience.js
+      - tools/grammar-glass/construction-hand-experience-live.mjs
+      - .github/workflows/construction-hand-experience.yml
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  contract:
+    name: Node ${{ matrix.node }} experience contract
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    strategy:
+      fail-fast: false
+      matrix:
+        node: [20, 22]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node }}
+      - name: Syntax
+        run: |
+          node --check tools/grammar-glass/construction-hand.js
+          node --check tools/grammar-glass/selftest-construction-hand-experience.js
+          node --check tools/grammar-glass/construction-hand-experience-live.mjs
+      - name: Focused next-action projection
+        run: node tools/grammar-glass/selftest-construction-hand-experience.js
+      - name: Existing Construction Hand contract
+        run: node tools/grammar-glass/selftest-construction-hand-viewer.js
+
+  browser:
+    name: Real Grammar Glass Chromium surface
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - name: Install CI-only browser probe
+        run: |
+          npm install --no-save --ignore-scripts playwright@1.63.0
+          npx playwright install --with-deps chromium
+      - name: Generate exact recorded snapshot
+        run: npm run snapshot --silent > /tmp/grammar-glass-snapshot.json
+      - name: Exercise explicit construction loop
+        env:
+          AXM_GRAMMAR_GLASS_SNAPSHOT: /tmp/grammar-glass-snapshot.json
+          AXM_EXPERIENCE_ARTIFACT_DIR: artifacts/construction-hand-experience
+        run: node tools/grammar-glass/construction-hand-experience-live.mjs
+      - name: Preserve visual evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: construction-hand-experience-${{ github.sha }}
+          path: artifacts/construction-hand-experience
+          if-no-files-found: error
+          retention-days: 14
