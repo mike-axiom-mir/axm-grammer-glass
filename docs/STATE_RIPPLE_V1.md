@@ -73,15 +73,32 @@ The baseline contains:
 - emitted signals;
 - final-state digest.
 
-Baseline admission reconstructs the fabric-owned cache contract instead of
+Baseline structural validation reconstructs the fabric-owned cache contract instead of
 trusting a cache entry merely because it can hash itself. Every retained entry
 must bind the exact node identity and node digest, contain exactly that node's
 declared write paths in deterministic order, reproduce its operation-declared
 signal sequence, and derive its output identity from that exact patch and
 signal list. The baseline must also contain exactly the fabric's watched paths
 and cache keys, and every value must be finite portable JSON. Foreign, missing,
-extra, non-portable, or re-sealed cache material is refused before sparse state
-can be published.
+extra, or non-portable cache material is refused before sparse state can be
+published.
+
+Structural self-consistency is deliberately **not** treated as provenance. A caller can
+construct different bytes on an already-declared write path and recompute ordinary
+content hashes. Therefore sparse cache reuse additionally requires baseline continuity:
+
+- an exact baseline object emitted by this State Ripple runtime is accepted through its
+  in-process immutable factory identity; or
+- a reconstructed/serialized baseline must be accompanied by an independently retained
+  `expectedBaselineSha256` equal to the previously trusted baseline identity.
+
+A structurally valid reconstructed baseline with no independent pin fails as
+`STATE_RIPPLE_BASELINE_PIN_REQUIRED`; a different self-consistent baseline presented
+against an older trusted pin fails as `STATE_RIPPLE_BASELINE_PIN_MISMATCH`.
+
+The pin is content identity, not authorship, signature verification, or semantic proof.
+If a caller learns its expected pin from the same untrusted baseline it is trying to
+admit, that does not create provenance.
 
 It does not treat the cache as learned weights, training, semantic truth, or authority.
 
@@ -89,14 +106,16 @@ It does not treat the cache as learned weights, training, semantic truth, or aut
 
 `sparseUpdate(...)` follows this sequence:
 
-1. digest the currently declared watched read paths;
-2. find which watched paths changed;
-3. create a conservative wake set from changed readers, opaque nodes, and graph descendants;
-4. check the caller's global wake budget **before execution**;
-5. walk the deterministic node order;
-6. reuse an old cache entry only when the exact current input fingerprint matches it;
-7. execute only nodes whose exact cached input no longer matches or whose opacity forbids reuse;
-8. publish a new baseline only after the complete staged update succeeds.
+1. structurally validate the supplied baseline;
+2. require either exact in-process factory identity or an independent matching baseline pin;
+3. digest the currently declared watched read paths;
+4. find which watched paths changed;
+5. create a conservative wake set from changed readers, opaque nodes, and graph descendants;
+6. check the caller's global wake budget **before execution**;
+7. walk the deterministic node order;
+8. reuse an old cache entry only when the exact current input fingerprint matches it;
+9. execute only nodes whose exact cached input no longer matches or whose opacity forbids reuse;
+10. publish a new baseline only after the complete staged update succeeds.
 
 If a node fails, the staged sparse future is discarded. No partial next baseline is published.
 
@@ -190,6 +209,7 @@ State Ripple does not:
 - access network, filesystem, processes, or DOM;
 - infer hidden dependencies;
 - turn cache into evidence of real-world correctness;
+- turn a SHA-256 pin into authorship or a signature;
 - claim a sparse result is proven without the appropriate reference evidence;
 - rank or select discoveries;
 - admit or promote candidates;
