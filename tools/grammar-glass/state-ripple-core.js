@@ -11,6 +11,7 @@
   const MAX_OPERATIONS = 32768;
   const OPS = Object.freeze([...(Program.OPS || []), 'COPY', 'SUM']);
   const BAD_SEGMENTS = new Set(['__proto__', 'prototype', 'constructor']);
+  const TRUSTED_BASELINES = new WeakSet();
 
   function canon(value) { return Program.canon(value); }
   function sha256(value) { return Program.sha256(value); }
@@ -247,7 +248,9 @@
   function makeBaseline(fabric, inputState, finalState, cache) {
     const watchDigests = readSnapshot(fabric, inputState), cacheCore = Object.fromEntries(fabric.topologicalOrder.map(id => [id, cache[id]]));
     const core = { schema: 'axm.code.grammar-glass-state-ripple-baseline.v1', version: '1.0.0', result: 'STATE_RIPPLE_BASELINE_READY', fabricSha256: fabric.fabricSha256, graphSha256: fabric.graph.graphSha256, watchDigests, watchedInputSha256: sha256(watchDigests), finalStateSha256: sha256(finalState), cache: cacheCore, cacheCount: Object.keys(cacheCore).length, truth: BASELINE_TRUTH, authority: 'NONE' };
-    return freeze({ ...core, baselineSha256: sha256(core) });
+    const baseline = freeze({ ...core, baselineSha256: sha256(core) });
+    TRUSTED_BASELINES.add(baseline);
+    return baseline;
   }
   function validBaseline(fabric, baseline) {
     if (!validFabric(fabric) || !portableJson(baseline) || !exactKeys(baseline, BASELINE_KEYS) || baseline.schema !== 'axm.code.grammar-glass-state-ripple-baseline.v1' || baseline.version !== '1.0.0' || baseline.result !== 'STATE_RIPPLE_BASELINE_READY' || baseline.authority !== 'NONE' || baseline.fabricSha256 !== fabric.fabricSha256 || baseline.graphSha256 !== fabric.graph.graphSha256 || !digest(baseline.baselineSha256) || !digest(baseline.watchedInputSha256) || !digest(baseline.finalStateSha256) || canon(baseline.truth) !== canon(BASELINE_TRUTH)) return false;
@@ -281,8 +284,13 @@
     const queue = [...wake]; while (queue.length) { const id = queue.shift(); for (const child of fabric.graph.outgoing[id]) if (!wake.has(child)) { wake.add(child); queue.push(child); } }
     return wake;
   }
-  function sparseUpdate(fabric, inputState, baseline, { wakeBudget = Infinity } = {}) {
-    if (!validFabric(fabric)) throw Error('STATE_RIPPLE_VALID_FABRIC_REQUIRED'); if (!validBaseline(fabric, baseline)) throw Error('STATE_RIPPLE_CURRENT_BASELINE_REQUIRED');
+  function sparseUpdate(fabric, inputState, baseline, { wakeBudget = Infinity, expectedBaselineSha256 = null } = {}) {
+    if (!validFabric(fabric)) throw Error('STATE_RIPPLE_VALID_FABRIC_REQUIRED');
+    if (!validBaseline(fabric, baseline)) throw Error('STATE_RIPPLE_CURRENT_BASELINE_REQUIRED');
+    if (!TRUSTED_BASELINES.has(baseline)) {
+      if (!digest(expectedBaselineSha256)) throw Error('STATE_RIPPLE_BASELINE_PIN_REQUIRED');
+      if (expectedBaselineSha256 !== baseline.baselineSha256) throw Error('STATE_RIPPLE_BASELINE_PIN_MISMATCH');
+    }
     const currentWatch = readSnapshot(fabric, inputState), changedPaths = changedWatchedPaths(baseline, currentWatch), conservativeWake = wakeClosure(fabric, changedPaths, baseline), budget = Number(wakeBudget);
     if (!(budget >= 0)) throw Error('STATE_RIPPLE_WAKE_BUDGET_INVALID');
     if (conservativeWake.size > budget) {
