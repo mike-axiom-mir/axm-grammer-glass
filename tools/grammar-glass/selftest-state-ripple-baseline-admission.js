@@ -48,7 +48,7 @@ const transplanted = resealEntry({
 const forged = resealBaseline(full.baseline, { 'copy-input': transplanted });
 
 eq(Ripple.validBaseline(fabric, forged), false, 'self-consistent foreign cache entry is rejected');
-throws(() => Ripple.sparseUpdate(fabric, input, forged, { wakeBudget: 0 }), 'CURRENT_BASELINE_REQUIRED');
+throws(() => Ripple.sparseUpdate(fabric, input, forged, { wakeBudget: 0, expectedBaselineSha256: full.baseline.baselineSha256 }), 'CURRENT_BASELINE_REQUIRED');
 
 const wrongOutput = resealEntry({ ...original, outputSha256: 'f'.repeat(64) });
 const wrongOutputBaseline = resealBaseline(full.baseline, { 'copy-input': wrongOutput });
@@ -71,6 +71,26 @@ const nonPortableEntry = resealEntry({
 });
 const nonPortableBaseline = resealBaseline(full.baseline, { 'copy-input': nonPortableEntry });
 eq(Ripple.validBaseline(fabric, nonPortableBaseline), false, 'non-portable cache values cannot hide behind JSON hash equivalence');
+
+const declaredButFalseWrites = [{ path: 'output.safe', value: { present: true, value: 99 } }];
+const declaredButFalseEntry = resealEntry({
+  ...original,
+  writeValues: declaredButFalseWrites,
+  outputSha256: Ripple.sha256({ writeValues: declaredButFalseWrites, emittedSignals: [] })
+});
+const declaredButFalseBaseline = resealBaseline(full.baseline, { 'copy-input': declaredButFalseEntry });
+ok(Ripple.validBaseline(fabric, declaredButFalseBaseline), 'self-consistent same-node cache remains structurally valid without external origin evidence');
+throws(
+  () => Ripple.sparseUpdate(fabric, input, declaredButFalseBaseline, { wakeBudget: 0, expectedBaselineSha256: full.baseline.baselineSha256 }),
+  'BASELINE_PIN_MISMATCH'
+);
+throws(
+  () => Ripple.sparseUpdate(fabric, input, full.baseline, { wakeBudget: 0 }),
+  'BASELINE_PIN_REQUIRED'
+);
+const pinned = Ripple.sparseUpdate(fabric, input, full.baseline, { wakeBudget: 0, expectedBaselineSha256: full.baseline.baselineSha256 });
+eq(pinned.result, 'STATE_RIPPLE_SPARSE_UPDATE_COMPLETE', 'trusted baseline pin admits unchanged cache reuse');
+eq(pinned.finalState.output.safe, 7, 'pinned cache cannot replace the declared COPY result with re-sealed bytes');
 
 console.log(JSON.stringify({
   result: 'GRAMMAR_GLASS_STATE_RIPPLE_BASELINE_ADMISSION_SELFTEST_PASS',
