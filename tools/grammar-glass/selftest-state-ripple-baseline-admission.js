@@ -85,12 +85,17 @@ throws(
   'BASELINE_PIN_MISMATCH'
 );
 throws(
-  () => Ripple.sparseUpdate(fabric, input, full.baseline, { wakeBudget: 0 }),
+  () => Ripple.sparseUpdate(fabric, input, declaredButFalseBaseline, { wakeBudget: 0 }),
   'BASELINE_PIN_REQUIRED'
 );
 const pinned = Ripple.sparseUpdate(fabric, input, full.baseline, { wakeBudget: 0, expectedBaselineSha256: full.baseline.baselineSha256 });
-eq(pinned.result, 'STATE_RIPPLE_SPARSE_UPDATE_COMPLETE', 'trusted baseline pin admits unchanged cache reuse');
-eq(pinned.finalState.output.safe, 7, 'pinned cache cannot replace the declared COPY result with re-sealed bytes');
+eq(pinned.result, 'STATE_RIPPLE_SPARSE_UPDATE_COMPLETE', 'trusted factory baseline admits unchanged cache reuse');
+eq(pinned.finalState.output.safe, 7, 'trusted cache cannot replace the declared COPY result with re-sealed bytes');
+
+const portableCopy = JSON.parse(JSON.stringify(full.baseline));
+ok(Ripple.validBaseline(fabric, portableCopy), 'portable copy remains structurally valid');
+const admittedCopy = Ripple.sparseUpdate(fabric, input, portableCopy, { wakeBudget: 0, expectedBaselineSha256: full.baseline.baselineSha256 });
+eq(admittedCopy.finalState.output.safe, 7, 'independently pinned portable baseline can be reused');
 
 console.log(JSON.stringify({
   result: 'GRAMMAR_GLASS_STATE_RIPPLE_BASELINE_ADMISSION_SELFTEST_PASS',
