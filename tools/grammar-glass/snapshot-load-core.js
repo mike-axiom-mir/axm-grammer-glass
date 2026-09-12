@@ -1,17 +1,27 @@
 (function(root,factory){
-  const api=factory();
+  const api=factory(typeof module==='object'&&module.exports
+    ?require('./playground-core.js')
+    :root.AXMGrammarGlassPlaygroundCore);
   if(typeof module==='object'&&module.exports)module.exports=api;
   else root.AXMGrammarGlassSnapshotLoadCore=api;
-})(typeof globalThis!=='undefined'?globalThis:this,function(){
+})(typeof globalThis!=='undefined'?globalThis:this,function(Integrity){
   'use strict';
 
   const SCHEMA='axm.code.grammar-glass-visual-snapshot.v1';
   const RECEIPT_SCHEMA='axm.code.grammar-glass-snapshot-load.v1';
 
+  function snapshotDigest(snapshot){
+    if(!Integrity||typeof Integrity.sha256!=='function')throw new Error('GRAMMAR_GLASS_SNAPSHOT_INTEGRITY_ADAPTER_REQUIRED');
+    const core={...snapshot};
+    delete core.visualSnapshotSha256;
+    return Integrity.sha256(core);
+  }
+
   function validSnapshot(snapshot){
-    return !!(snapshot&&snapshot.schema===SCHEMA&&snapshot.cycle&&
+    if(!(snapshot&&snapshot.schema===SCHEMA&&snapshot.cycle&&
       Array.isArray(snapshot.cycle.atoms)&&Array.isArray(snapshot.cycle.edges)&&
-      Array.isArray(snapshot.draftSky));
+      Array.isArray(snapshot.draftSky)&&/^[0-9a-f]{64}$/.test(snapshot.visualSnapshotSha256||'')))return false;
+    try{return snapshotDigest(snapshot)===snapshot.visualSnapshotSha256}catch{return false}
   }
 
   function loadReceipt(result,selectionId,file,snapshot=null,error=null){
@@ -27,7 +37,8 @@
         rootSeed:snapshot.rootSeed||null,
         sourceSha256:snapshot.sourceSha256||null,
         profileSnapshotSha256:snapshot.profileSnapshotSha256||null,
-        cycleSha256:snapshot.cycle?.cycleSha256||null
+        cycleSha256:snapshot.cycle?.cycleSha256||null,
+        visualSnapshotSha256:snapshot.visualSnapshotSha256
       }:null,
       metrics:snapshot?{
         profileCount:Number(snapshot.profileCount)||0,
@@ -40,6 +51,7 @@
         loadReceiptIsViewerStateOnly:true,
         staleSelectionCannotReplaceCurrent:true,
         invalidSelectionDoesNotClearPriorCommit:true,
+        visualSnapshotDigestVerified:!!snapshot,
         loadingCreatesEvidence:false,
         recordedSnapshotMutation:false,
         authority:'NONE'
@@ -118,5 +130,5 @@
     });
   }
 
-  return Object.freeze({SCHEMA,RECEIPT_SCHEMA,validSnapshot,createSession});
+  return Object.freeze({SCHEMA,RECEIPT_SCHEMA,snapshotDigest,validSnapshot,createSession});
 });
