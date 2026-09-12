@@ -96,11 +96,23 @@
     for (const module of modules) collect(module.id);
     return memo;
   }
+  function pathOverlaps(left, right) {
+    const leftParts = pathParts(left), rightParts = pathParts(right);
+    const sharedLength = Math.min(leftParts.length, rightParts.length);
+    for (let index = 0; index < sharedLength; index += 1) {
+      if (leftParts[index] !== rightParts[index]) return false;
+    }
+    return true;
+  }
   function checkWriteOrdering(modules) {
     const ancestry = ancestors(modules);
     for (let i = 0; i < modules.length; i += 1) for (let j = i + 1; j < modules.length; j += 1) {
-      const a = modules[i], b = modules[j], overlap = a.writes.filter(path => b.writes.includes(path));
-      if (overlap.length && !ancestry.get(a.id).has(b.id) && !ancestry.get(b.id).has(a.id)) throw Error(`CONSTRUCTION_PROGRAM_AMBIGUOUS_WRITE_ORDER:${a.id}:${b.id}:${overlap[0]}`);
+      const a = modules[i], b = modules[j];
+      const overlap = a.writes.flatMap(left => b.writes.filter(right => pathOverlaps(left, right)).map(right => [left, right]))[0];
+      if (overlap && !ancestry.get(a.id).has(b.id) && !ancestry.get(b.id).has(a.id)) {
+        const paths = overlap[0] === overlap[1] ? overlap[0] : `${overlap[0]}:${overlap[1]}`;
+        throw Error(`CONSTRUCTION_PROGRAM_AMBIGUOUS_WRITE_ORDER:${a.id}:${b.id}:${paths}`);
+      }
     }
   }
   function createProgram({ programId = 'grammar-glass-construction-program', modules = [], requiredEffects = [], binding = null } = {}) {
