@@ -102,6 +102,7 @@
       "TIMEOUT_OBSERVED"
     ],
     "passMeansBoundedRuntimeInvariantOnly": true,
+    "executorArmRequiresExactBrowserReplayReconstruction": true,
     "discoveryLedgerRequiresCurrentRuntimeReceiptDigestAndExactConstructionLineage": true,
     "explicitReleaseSupported": true
   },

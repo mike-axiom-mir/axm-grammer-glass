@@ -11,6 +11,7 @@
   const MAX_OPERATIONS = 32768;
   const OPS = Object.freeze([...(Program.OPS || []), 'COPY', 'SUM']);
   const BAD_SEGMENTS = new Set(['__proto__', 'prototype', 'constructor']);
+  const TRUSTED_BASELINES = new WeakSet();
 
   function canon(value) { return Program.canon(value); }
   function sha256(value) { return Program.sha256(value); }
@@ -178,8 +179,10 @@
   }
   function validFabric(fabric) {
     if (!fabric || fabric.schema !== 'axm.code.grammar-glass-state-ripple-fabric.v1' || !fabric.fabricSha256 || !Array.isArray(fabric.nodes) || !Array.isArray(fabric.topologicalOrder) || fabric.nodeCount !== fabric.nodes.length || fabric.topologicalOrder.length !== fabric.nodes.length) return false;
-    const core = { ...fabric }, expected = core.fabricSha256; delete core.fabricSha256;
-    return sha256(core) === expected && fabric.graph?.graphSha256 && new Set(fabric.topologicalOrder).size === fabric.nodeCount;
+    try {
+      const rebuilt = createFabric({ fabricId: fabric.fabricId, nodes: fabric.nodes, requiredEffects: fabric.requiredEffects, binding: fabric.binding, opaqueNodeIds: fabric.opaqueNodeIds });
+      return rebuilt.fabricSha256 === fabric.fabricSha256 && canon(rebuilt) === canon(fabric);
+    } catch { return false; }
   }
   function readSnapshot(fabric, state) {
     const paths = uniqSorted(fabric.nodes.flatMap(node => node.reads));
@@ -208,20 +211,54 @@
     const dependencies = Object.fromEntries(incomingIds.map(id => [id, cache[id]?.outputSha256 || null]));
     return sha256({ reads, dependencies });
   }
+  const CACHE_ENTRY_KEYS = Object.freeze(['cacheEntrySha256', 'emittedSignals', 'inputFingerprint', 'nodeId', 'nodeSha256', 'outputSha256', 'writeValues']);
+  const BASELINE_KEYS = Object.freeze(['authority', 'baselineSha256', 'cache', 'cacheCount', 'fabricSha256', 'finalStateSha256', 'graphSha256', 'result', 'schema', 'truth', 'version', 'watchDigests', 'watchedInputSha256']);
+  const BASELINE_TRUTH = Object.freeze({ watchedInputsStoredAsDigestsOnly: true, unchangedCacheEntriesMayBeRetainedByIdentity: true, baselineIsNotAuthority: true });
+  function portableJson(value, seen = new Set()) {
+    if (value === null || typeof value === 'string' || typeof value === 'boolean') return true;
+    if (typeof value === 'number') return Number.isFinite(value);
+    if (!value || typeof value !== 'object' || seen.has(value)) return false;
+    if (!Array.isArray(value)) { const prototype = Object.getPrototypeOf(value); if (prototype !== Object.prototype && prototype !== null) return false; }
+    seen.add(value);
+    const valid = (Array.isArray(value) ? value : Object.values(value)).every(item => portableJson(item, seen));
+    seen.delete(value);
+    return valid;
+  }
+  function exactKeys(value, expected) { return !!value && typeof value === 'object' && !Array.isArray(value) && canon(Object.keys(value).sort()) === canon([...expected].sort()); }
+  function digest(value) { return typeof value === 'string' && /^[0-9a-f]{64}$/.test(value); }
+  function orderedWritePaths(node) { return [...node.writes].sort((a,b) => pathParts(a).length-pathParts(b).length||a.localeCompare(b)); }
+  function expectedSignals(node) { return node.operations.filter(operation => operation.op === 'EMIT_SIGNAL').map(operation => String(operation.signal)); }
   function makeCacheEntry(node, fingerprint, state, signals) {
     const writeValues = captureWrites(node, state), core = { nodeId: node.id, nodeSha256: node.nodeSha256, inputFingerprint: fingerprint, writeValues, emittedSignals: [...signals], outputSha256: sha256({ writeValues, emittedSignals: [...signals] }) };
     return freeze({ ...core, cacheEntrySha256: sha256(core) });
   }
-  function validCacheEntry(entry) { if (!entry?.cacheEntrySha256) return false; const core = { ...entry }; delete core.cacheEntrySha256; return sha256(core) === entry.cacheEntrySha256; }
+  function validCacheEntry(node, entry) {
+    if (!node || !exactKeys(entry, CACHE_ENTRY_KEYS) || entry.nodeId !== node.id || entry.nodeSha256 !== node.nodeSha256 || !digest(entry.inputFingerprint) || !digest(entry.outputSha256) || !digest(entry.cacheEntrySha256)) return false;
+    if (!Array.isArray(entry.writeValues) || !Array.isArray(entry.emittedSignals)) return false;
+    const paths = orderedWritePaths(node);
+    if (entry.writeValues.length !== paths.length || entry.emittedSignals.length !== expectedSignals(node).length) return false;
+    for (let index = 0; index < paths.length; index += 1) {
+      const write = entry.writeValues[index];
+      if (!exactKeys(write, ['path', 'value']) || write.path !== paths[index] || !exactKeys(write.value, ['present', 'value']) || typeof write.value.present !== 'boolean' || (!write.value.present && write.value.value !== null)) return false;
+    }
+    if (canon(entry.emittedSignals) !== canon(expectedSignals(node)) || entry.outputSha256 !== sha256({ writeValues: entry.writeValues, emittedSignals: entry.emittedSignals })) return false;
+    const core = { ...entry }; delete core.cacheEntrySha256;
+    return sha256(core) === entry.cacheEntrySha256;
+  }
   function makeBaseline(fabric, inputState, finalState, cache) {
     const watchDigests = readSnapshot(fabric, inputState), cacheCore = Object.fromEntries(fabric.topologicalOrder.map(id => [id, cache[id]]));
-    const core = { schema: 'axm.code.grammar-glass-state-ripple-baseline.v1', version: '1.0.0', result: 'STATE_RIPPLE_BASELINE_READY', fabricSha256: fabric.fabricSha256, graphSha256: fabric.graph.graphSha256, watchDigests, watchedInputSha256: sha256(watchDigests), finalStateSha256: sha256(finalState), cache: cacheCore, cacheCount: Object.keys(cacheCore).length, truth: { watchedInputsStoredAsDigestsOnly: true, unchangedCacheEntriesMayBeRetainedByIdentity: true, baselineIsNotAuthority: true }, authority: 'NONE' };
-    return freeze({ ...core, baselineSha256: sha256(core) });
+    const core = { schema: 'axm.code.grammar-glass-state-ripple-baseline.v1', version: '1.0.0', result: 'STATE_RIPPLE_BASELINE_READY', fabricSha256: fabric.fabricSha256, graphSha256: fabric.graph.graphSha256, watchDigests, watchedInputSha256: sha256(watchDigests), finalStateSha256: sha256(finalState), cache: cacheCore, cacheCount: Object.keys(cacheCore).length, truth: BASELINE_TRUTH, authority: 'NONE' };
+    const baseline = freeze({ ...core, baselineSha256: sha256(core) });
+    TRUSTED_BASELINES.add(baseline);
+    return baseline;
   }
   function validBaseline(fabric, baseline) {
-    if (!validFabric(fabric) || !baseline || baseline.schema !== 'axm.code.grammar-glass-state-ripple-baseline.v1' || baseline.fabricSha256 !== fabric.fabricSha256 || baseline.graphSha256 !== fabric.graph.graphSha256 || !baseline.baselineSha256) return false;
-    const core = { ...baseline }; delete core.baselineSha256; if (sha256(core) !== baseline.baselineSha256 || baseline.cacheCount !== fabric.nodeCount) return false;
-    return fabric.topologicalOrder.every(id => validCacheEntry(baseline.cache?.[id]));
+    if (!validFabric(fabric) || !portableJson(baseline) || !exactKeys(baseline, BASELINE_KEYS) || baseline.schema !== 'axm.code.grammar-glass-state-ripple-baseline.v1' || baseline.version !== '1.0.0' || baseline.result !== 'STATE_RIPPLE_BASELINE_READY' || baseline.authority !== 'NONE' || baseline.fabricSha256 !== fabric.fabricSha256 || baseline.graphSha256 !== fabric.graph.graphSha256 || !digest(baseline.baselineSha256) || !digest(baseline.watchedInputSha256) || !digest(baseline.finalStateSha256) || canon(baseline.truth) !== canon(BASELINE_TRUTH)) return false;
+    const expectedWatchPaths = uniqSorted(fabric.nodes.flatMap(node => node.reads)), expectedCacheIds = [...fabric.topologicalOrder];
+    if (!exactKeys(baseline.watchDigests, expectedWatchPaths) || !expectedWatchPaths.every(path => digest(baseline.watchDigests[path])) || baseline.watchedInputSha256 !== sha256(baseline.watchDigests) || !exactKeys(baseline.cache, expectedCacheIds) || baseline.cacheCount !== expectedCacheIds.length) return false;
+    const core = { ...baseline }; delete core.baselineSha256; if (sha256(core) !== baseline.baselineSha256) return false;
+    const byId = new Map(fabric.nodes.map(node => [node.id, node]));
+    return expectedCacheIds.every(id => validCacheEntry(byId.get(id), baseline.cache[id]));
   }
   function runAll(fabric, inputState = {}) {
     if (!validFabric(fabric)) throw Error('STATE_RIPPLE_VALID_FABRIC_REQUIRED');
@@ -247,8 +284,13 @@
     const queue = [...wake]; while (queue.length) { const id = queue.shift(); for (const child of fabric.graph.outgoing[id]) if (!wake.has(child)) { wake.add(child); queue.push(child); } }
     return wake;
   }
-  function sparseUpdate(fabric, inputState, baseline, { wakeBudget = Infinity } = {}) {
-    if (!validFabric(fabric)) throw Error('STATE_RIPPLE_VALID_FABRIC_REQUIRED'); if (!validBaseline(fabric, baseline)) throw Error('STATE_RIPPLE_CURRENT_BASELINE_REQUIRED');
+  function sparseUpdate(fabric, inputState, baseline, { wakeBudget = Infinity, expectedBaselineSha256 = null } = {}) {
+    if (!validFabric(fabric)) throw Error('STATE_RIPPLE_VALID_FABRIC_REQUIRED');
+    if (!validBaseline(fabric, baseline)) throw Error('STATE_RIPPLE_CURRENT_BASELINE_REQUIRED');
+    if (!TRUSTED_BASELINES.has(baseline)) {
+      if (!digest(expectedBaselineSha256)) throw Error('STATE_RIPPLE_BASELINE_PIN_REQUIRED');
+      if (expectedBaselineSha256 !== baseline.baselineSha256) throw Error('STATE_RIPPLE_BASELINE_PIN_MISMATCH');
+    }
     const currentWatch = readSnapshot(fabric, inputState), changedPaths = changedWatchedPaths(baseline, currentWatch), conservativeWake = wakeClosure(fabric, changedPaths, baseline), budget = Number(wakeBudget);
     if (!(budget >= 0)) throw Error('STATE_RIPPLE_WAKE_BUDGET_INVALID');
     if (conservativeWake.size > budget) {

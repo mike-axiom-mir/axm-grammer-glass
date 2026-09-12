@@ -13,11 +13,35 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+      - name: Require immutable GitHub Action pins
+        shell: bash
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          import re
+
+          workflow = Path('.github/workflows/verify-grammar-glass.yml')
+          bad = []
+          for number, line in enumerate(workflow.read_text(encoding='utf-8').splitlines(), 1):
+              match = re.match(r'^\s*-\s*uses:\s*([^#\s]+)', line)
+              if not match:
+                  continue
+              reference = match.group(1)
+              if reference.startswith('./'):
+                  continue
+              if not re.search(r'@[0-9a-f]{40}$', reference):
+                  bad.append((number, reference))
+          if bad:
+              for number, reference in bad:
+                  print(f'non-immutable action reference at line {number}: {reference}')
+              raise SystemExit(1)
+          print('all external GitHub Action references are immutable commit SHAs')
+          PY
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
         with:
           node-version: "20"
-      - uses: actions/setup-python@v5
+      - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5
         with:
           python-version: "3.12"
       - name: Syntax and contracts
@@ -27,9 +51,12 @@ jobs:
           grep -q 'OPEN_DISCOVERY' shared/code-capability-fabric/language-organs/code-grammar-glass.contract.json
       - name: Run Grammar Glass selftests
         run: npm test
+      - name: Verify static evidence overview
+        run: node tools/grammar-glass/selftest-static-overview.js
       - name: Verify current snapshot contract
         run: |
           node shared/code-capability-fabric/language-organs/generate-code-grammar-glass-snapshot.js --seed 6f2d8b4abef8ebf661925d5ce9d1aeea05b584055e8bdc96b9f857fd66d65e0f --day standalone-grammar-glass --ticks 6 --stars 4 > /tmp/grammar-glass-snapshot.json
+          node tools/grammar-glass/static-overview.js /tmp/grammar-glass-snapshot.json /tmp/grammar-glass-overview.svg SAFE > /tmp/grammar-glass-overview-run.json
           python - /tmp/grammar-glass-snapshot.json <<'PY'
           import json, sys
           p=json.load(open(sys.argv[1], encoding='utf-8'))
@@ -50,6 +77,25 @@ jobs:
           assert p['constructionHand']['coverage']['distinctArtifactCount']==8
           assert p['constructionHand']['truth']['sourceTextStoredInVisualSnapshot'] is False
           assert '<!doctype html>' not in json.dumps(p)
+          PY
+          python - /tmp/grammar-glass-overview.svg /tmp/grammar-glass-overview.svg.receipt.json <<'PY'
+          import json, sys, xml.etree.ElementTree as ET
+          svg, receipt = sys.argv[1:]
+          ET.parse(svg)
+          text=open(svg, encoding='utf-8').read()
+          r=json.load(open(receipt, encoding='utf-8'))
+          assert r['schema']=='axm.code.grammar-glass-static-overview-receipt.v1'
+          assert r['projectionMode']=='SAFE'
+          assert r['evidenceAtomCount']==1122
+          assert r['renderedAtomCount']==384
+          assert r['projectionHeldAtomCount']==738
+          assert r['languageCoverageCount']==102
+          assert r['truth']['staticProjectionCreatesEvidence'] is False
+          assert r['truth']['heldFromProjectionMeansAbsent'] is False
+          assert r['truth']['authority']=='NONE'
+          assert 'role="img"' in text and 'TRUTH BOUNDARY' in text
+          assert '<script' not in text and '<image' not in text
+          assert ' href=' not in text and ' src=' not in text
           PY
       - name: Verify viewer and intake surfaces
         run: |

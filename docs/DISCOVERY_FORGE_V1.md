@@ -86,7 +86,7 @@ The validator rejects:
 - undeclared effects;
 - missing dependencies;
 - dependency cycles;
-- ambiguous same-path writes without dependency ordering;
+- ambiguous same-path or ancestor/descendant writes without dependency ordering;
 - unsafe prototype-path segments;
 - module or operation counts above the hard ceilings.
 

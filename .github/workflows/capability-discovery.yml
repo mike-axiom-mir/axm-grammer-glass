@@ -1,0 +1,85 @@
+name: Public Capability Discovery
+
+on:
+  pull_request:
+  push:
+    branches:
+      - automation/capability-weaver-grammar-glass-discovery-v0.1
+
+permissions:
+  contents: read
+
+jobs:
+  registry-contract:
+    strategy:
+      matrix:
+        node-version: ['20', '22']
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out Grammar Glass
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version: ${{ matrix.node-version }}
+
+      - name: Verify generated public registry
+        run: node tools/capability-discovery/generate-registry.mjs --check
+
+      - name: Run focused capability-discovery tests
+        run: node --test tools/capability-discovery/test-registry.mjs
+
+      - name: Run existing Grammar Glass regression suite
+        run: npm test
+
+  discovery-buddy-consumer:
+    needs: registry-contract
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out Grammar Glass
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+
+      - name: Set up Python
+        uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5
+        with:
+          python-version: '3.11'
+
+      - name: Check out pinned Discovery Buddy consumer
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          repository: mike-axiom-mir/axm-discovery-buddy
+          ref: 1a94fc2481d1cfc9234dea7c86af4777126d3924
+          path: .integration/discovery-buddy
+
+      - name: Prove public capability consumption
+        env:
+          PYTHONPATH: .integration/discovery-buddy
+        run: |
+          python -m discovery_buddy scan . --public --output-dir /tmp/axm-discovery
+          python - <<'PY'
+          import json
+          from pathlib import Path
+
+          data = json.loads(Path('/tmp/axm-discovery/public-discovery.json').read_text('utf-8'))
+          assert data['summary']['repositories'] == 1, data['summary']
+          assert data['summary']['capability_records'] == 2, data['summary']
+          repo = data['repositories'][0]
+          assert repo['repo'] == 'mike-axiom-mir/axm-grammer-glass', repo
+          sources = repo['capabilities']['sources']
+          assert any(
+              source['path'] == 'registry/public-capabilities.jsonl'
+              and source.get('errors', 0) == 0
+              and source.get('records') == 2
+              for source in sources
+          ), sources
+          rows = {row['id']: row for row in repo['capabilities']['records']}
+          expected = {
+              'axm.code.grammar-glass-construction-hand-contract.v1',
+              'axm.code.grammar-glass-discovery-kiln-contract.v1',
+          }
+          assert set(rows) == expected, rows
+          assert all(row['status'] == 'TEST' for row in rows.values()), rows
+          assert all(row['providers'] == ['axm-grammer-glass'] for row in rows.values()), rows
+          print('Discovery Buddy consumed both TEST-only Grammar Glass public capability declarations')
+          PY
