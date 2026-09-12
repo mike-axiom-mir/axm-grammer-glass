@@ -33,6 +33,15 @@
     return !!frame && ['setSandbox', 'showArmed', 'load', 'release'].every(name => typeof frame[name] === 'function');
   }
 
+  function validBuildForArm(build) {
+    if (!build || build.schema !== 'axm.code.grammar-glass-browser-construction-replay.v1' ||
+        build.result !== 'BROWSER_CONSTRUCTION_REPLAY_VERIFIED' || !build.bundle ||
+        !ConstructionHand.validBundle(build.bundle)) return false;
+    const expected = ConstructionHand.build(build.bundle);
+    return !!expected && expected.result === 'BROWSER_CONSTRUCTION_REPLAY_VERIFIED' &&
+      ConstructionHand.canon(expected) === ConstructionHand.canon(build);
+  }
+
   function createExecutor({ setTimer = setTimeout, clearTimer = clearTimeout } = {}) {
     const listeners = new Set();
     let session = null;
@@ -109,7 +118,7 @@
     }
 
     function arm(build, frame) {
-      if (!build || build.result !== 'BROWSER_CONSTRUCTION_REPLAY_VERIFIED' || !build.transientSource || !validFrame(frame)) return null;
+      if (!validBuildForArm(build) || !build.transientSource || !validFrame(frame)) return null;
       const request = build.runRequest;
       const profile = request && request.executorProfile;
       if (!request || request.result !== 'CONSTRUCTION_SANDBOX_REQUEST_READY_NOT_EXECUTED' ||
