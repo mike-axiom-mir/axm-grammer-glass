@@ -10,7 +10,7 @@
   "inputs": [
     {
       "path": "shared/code-capability-fabric/language-organs/code-grammar-glass-construction-hand.contract.json",
-      "git_blob_sha1": "32897dc1bed2f54c25bbc39cc1b173401332326e"
+      "git_blob_sha1": "e589b77bafeb8adf748cbcc6b14aa3881a6b1dbe"
     },
     {
       "path": "shared/code-capability-fabric/language-organs/code-grammar-glass-construction-hand.js",
