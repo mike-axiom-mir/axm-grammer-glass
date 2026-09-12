@@ -51,9 +51,12 @@ jobs:
           grep -q 'OPEN_DISCOVERY' shared/code-capability-fabric/language-organs/code-grammar-glass.contract.json
       - name: Run Grammar Glass selftests
         run: npm test
+      - name: Verify static evidence overview
+        run: node tools/grammar-glass/selftest-static-overview.js
       - name: Verify current snapshot contract
         run: |
           node shared/code-capability-fabric/language-organs/generate-code-grammar-glass-snapshot.js --seed 6f2d8b4abef8ebf661925d5ce9d1aeea05b584055e8bdc96b9f857fd66d65e0f --day standalone-grammar-glass --ticks 6 --stars 4 > /tmp/grammar-glass-snapshot.json
+          node tools/grammar-glass/static-overview.js /tmp/grammar-glass-snapshot.json /tmp/grammar-glass-overview.svg SAFE > /tmp/grammar-glass-overview-run.json
           python - /tmp/grammar-glass-snapshot.json <<'PY'
           import json, sys
           p=json.load(open(sys.argv[1], encoding='utf-8'))
@@ -74,6 +77,25 @@ jobs:
           assert p['constructionHand']['coverage']['distinctArtifactCount']==8
           assert p['constructionHand']['truth']['sourceTextStoredInVisualSnapshot'] is False
           assert '<!doctype html>' not in json.dumps(p)
+          PY
+          python - /tmp/grammar-glass-overview.svg /tmp/grammar-glass-overview.svg.receipt.json <<'PY'
+          import json, sys, xml.etree.ElementTree as ET
+          svg, receipt = sys.argv[1:]
+          ET.parse(svg)
+          text=open(svg, encoding='utf-8').read()
+          r=json.load(open(receipt, encoding='utf-8'))
+          assert r['schema']=='axm.code.grammar-glass-static-overview-receipt.v1'
+          assert r['projectionMode']=='SAFE'
+          assert r['evidenceAtomCount']==1122
+          assert r['renderedAtomCount']==384
+          assert r['projectionHeldAtomCount']==738
+          assert r['languageCoverageCount']==102
+          assert r['truth']['staticProjectionCreatesEvidence'] is False
+          assert r['truth']['heldFromProjectionMeansAbsent'] is False
+          assert r['truth']['authority']=='NONE'
+          assert 'role="img"' in text and 'TRUTH BOUNDARY' in text
+          assert '<script' not in text and '<image' not in text
+          assert ' href=' not in text and ' src=' not in text
           PY
       - name: Verify viewer and intake surfaces
         run: |
