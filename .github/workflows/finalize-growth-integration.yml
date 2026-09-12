@@ -1,0 +1,60 @@
+name: Finalize Grammar Glass growth integration
+
+on:
+  push:
+    branches:
+      - integration/growth-days-20260912
+
+permissions:
+  contents: write
+
+jobs:
+  finalize:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          ref: integration/growth-days-20260912
+          fetch-depth: 0
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version: "20"
+      - name: Regenerate source-backed evidence and prove combined state
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+          node tools/capability-discovery/generate-registry.mjs
+          node --check tools/grammar-glass/discovery-kiln-core.js
+          node --check tools/grammar-glass/construction-hand-executor-core.js
+          npm test
+          node tools/grammar-glass/selftest-static-overview.js
+          node tools/grammar-glass/selftest-construction-hand-experience.js
+          node --test tools/capability-discovery/test-registry.mjs
+          node tools/capability-discovery/generate-registry.mjs --check
+
+          rm .github/workflows/finalize-growth-integration.yml
+
+          python3 - <<'PY'
+          from pathlib import Path
+          import re
+          bad=[]
+          for workflow in sorted(Path('.github/workflows').glob('*.y*ml')):
+              for line_no,line in enumerate(workflow.read_text(encoding='utf-8').splitlines(),1):
+                  match=re.match(r'^\s*-\s*uses:\s*([^#\s]+)',line)
+                  if not match or match.group(1).startswith('./'):
+                      continue
+                  if not re.search(r'@[0-9a-f]{40}$',match.group(1)):
+                      bad.append((workflow.as_posix(),line_no,match.group(1)))
+          if bad:
+              raise SystemExit(f'mutable GitHub Action references remain: {bad}')
+          print('all final external GitHub Action references are immutable commit SHAs')
+          PY
+
+          git diff --check
+          git add -A
+          git commit -m "Finalize Grammar Glass growth-day integration evidence"
+          git push origin HEAD:integration/growth-days-20260912
